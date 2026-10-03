@@ -1,0 +1,135 @@
+@model EcoSyncWeb.Models.Project
+@{
+    ViewData["Title"] = Model.Title;
+    var feedbacks = ViewBag.Feedbacks as List<EcoSyncWeb.Models.Feedback> ?? new List<EcoSyncWeb.Models.Feedback>();
+}
+
+<div class="container mt-4 mb-5">
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Quay lại danh sách dự án</a>
+    </div>
+
+    <!-- Thông tin chi tiết chiến dịch -->
+    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            @if (Model.Status == "Đã kết thúc")
+            {
+                <span class="badge bg-secondary px-3 py-2 rounded-pill">Đã kết thúc</span>
+            }
+            else
+            {
+                <span class="badge bg-primary px-3 py-2 rounded-pill">Sắp diễn ra</span>
+            }
+            <span class="text-muted fw-semibold">📅 Ngày diễn ra: @Model.StartTime.ToString("dd/MM/yyyy")</span>
+        </div>
+
+        <h1 class="fw-bold text-success display-6 mb-3">@Model.Title</h1>
+        <p class="text-secondary fw-semibold fs-5 mb-4">📍 Địa điểm: @Model.Location</p>
+
+        <hr />
+
+        <h4 class="fw-bold text-dark mt-3 mb-2">Giới thiệu chiến dịch</h4>
+        <p class="text-muted" style="font-size: 16px; line-height: 1.8;">@Model.Description</p>
+    </div>
+
+    <!-- PHIẾU KHẢO SÁT & ĐÁNH GIÁ (Dành cho AI Sentiment Analytics) -->
+    <div class="mt-5">
+        <h3 class="fw-bold text-success mb-2">📋 Phiếu Khảo Sát & Đánh Giá Nhận Giấy Chứng Nhận</h3>
+        <p class="text-muted mb-4">Tình nguyện viên vui lòng hoàn thành các tiêu chí đánh giá dưới đây để Ban tổ chức làm cơ sở tổng hợp dữ liệu cấp GCN tham gia.</p>
+
+        @if (ViewBag.HasSubmittedFeedback == true)
+        {
+            <!-- THÔNG BÁO ĐÃ GỬI THÀNH CÔNG (Thay thế form) -->
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white" style="border: 2px solid #198754 !important;">
+                <div class="mb-3">
+                    <span style="font-size: 50px;">🎉</span>
+                </div>
+                <h4 class="fw-bold text-success mb-2">Cảm ơn bạn đã hoàn thành đánh giá!</h4>
+                <p class="text-secondary mb-4">Phản hồi và kết quả khảo sát của bạn đã được ghi nhận vào hệ thống phân tích. Ban tổ chức đang tiến hành xét duyệt và cấp Giấy chứng nhận điện tử cho bạn.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a asp-action="MyCertificates" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">🏆 Xem GCN của tôi</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- FORM KHẢO SÁT BAN ĐẦU -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                <form asp-controller="Feedback" asp-action="Submit" method="post">
+                    <input type="hidden" name="projectId" value="@Model.Id" />
+                    <input type="hidden" name="rating" value="5" />
+                    
+                    <!-- Tiêu chí 1 -->
+                    <div class="mb-4 p-3 bg-light rounded-3 border">
+                        <label class="fw-bold text-dark d-block mb-2">1. Công tác tổ chức và điều phối chung của Ban tổ chức:</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria1" id="c1_yes" value="Hài lòng" required>
+                            <label class="form-check-label text-success fw-semibold" for="c1_yes">Hài lòng 😊</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria1" id="c1_no" value="Không hài lòng">
+                            <label class="form-check-label text-danger fw-semibold" for="c1_no">Không hài lòng 😞</label>
+                        </div>
+                    </div>
+
+                    <!-- Tiêu chí 2 -->
+                    <div class="mb-4 p-3 bg-light rounded-3 border">
+                        <label class="fw-bold text-dark d-block mb-2">2. Khâu hậu cần (Dụng cụ thu gom rác, nước uống, bảo hộ):</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria2" id="c2_yes" value="Hài lòng" required>
+                            <label class="form-check-label text-success fw-semibold" for="c2_yes">Hài lòng 😊</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria2" id="c2_no" value="Không hài lòng">
+                            <label class="form-check-label text-danger fw-semibold" for="c2_no">Không hài lòng 😞</label>
+                        </div>
+                    </div>
+
+                    <!-- Tiêu chí 3 -->
+                    <div class="mb-4 p-3 bg-light rounded-3 border">
+                        <label class="fw-bold text-dark d-block mb-2">3. Ý nghĩa và tính thiết thực của chiến dịch đối với cộng đồng:</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria3" id="c3_yes" value="Hài lòng" required>
+                            <label class="form-check-label text-success fw-semibold" for="c3_yes">Hài lòng 😊</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="criteria3" id="c3_no" value="Không hài lòng">
+                            <label class="form-check-label text-danger fw-semibold" for="c3_no">Không hài lòng 😞</label>
+                        </div>
+                    </div>
+
+                    <!-- Góp ý -->
+                    <div class="mb-3">
+                        <label class="fw-bold text-dark d-block mb-2">4. Chia sẻ hoặc góp ý ngắn bằng lời:</label>
+                        <textarea name="content" class="form-control rounded-4 p-3" rows="3" placeholder="Nhập ý kiến đóng góp của bạn để chúng tôi cải thiện ở các chiến dịch sau..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Gửi đánh giá & Khảo sát</button>
+                </form>
+            </div>
+        }
+
+        <!-- Danh sách phản hồi đã gửi -->
+        <h4 class="fw-bold text-success mt-5 mb-3">💬 Ý Kiến Đóng Góp Từ Tình Nguyện Viên</h4>
+        @if (!feedbacks.Any())
+        {
+            <div class="text-center py-4 bg-white rounded-4 shadow-sm text-muted">
+                Chưa có đánh giá nào cho chiến dịch này.
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var fb in feedbacks)
+                {
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark mb-0">👤 @fb.AuthorName</h6>
+                            <span class="text-muted small">🕒 @fb.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <p class="text-secondary mb-0">@fb.Content</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>

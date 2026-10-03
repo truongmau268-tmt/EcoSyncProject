@@ -1,0 +1,176 @@
+<!-- Bong bóng Chatbot nổi ở góc màn hình -->
+<div id="ecosync-chatbot-container" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999; font-family: sans-serif;">
+    <!-- Nút bấm mở/đóng khung chat -->
+    <button id="chatbot-toggle-btn" class="btn btn-success rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background-color: #198754; border: none;">
+        <span style="font-size: 28px;">🤖</span>
+    </button>
+
+    <!-- Khung cửa sổ chat -->
+    <div id="chatbot-window" class="card shadow-lg border-0 rounded-4 d-none" style="width: 350px; height: 500px; position: absolute; bottom: 75px; right: 0; overflow: hidden;">
+        <!-- Header -->
+        <div class="card-header bg-success text-white py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold" id="chatbot-title">💬 Trợ lý AI EcoSync</h6>
+                <button id="chatbot-close-btn" class="btn-close btn-close-white"></button>
+            </div>
+            <!-- Chuyển chế độ: Tư vấn <-> Phỏng vấn AI -->
+            <div class="btn-group btn-group-sm mt-2 w-100" role="group">
+                <button type="button" id="chatbot-mode-advice" class="btn btn-light fw-bold active">💬 Tư vấn</button>
+                <button type="button" id="chatbot-mode-interview" class="btn btn-outline-light fw-bold">🎤 Phỏng vấn AI</button>
+            </div>
+        </div>
+        <!-- Nội dung tin nhắn -->
+        <div id="chatbot-messages" class="card-body bg-light overflow-auto" style="height: 330px; padding: 15px; display: flex; flex-direction: column; gap: 10px;"></div>
+        <!-- Ô nhập tin nhắn -->
+        <div class="card-footer bg-white border-0 p-2 d-flex">
+            <input type="text" id="chatbot-input" class="form-control rounded-pill px-3 me-2" placeholder="Nhập câu hỏi..." style="font-size: 14px;" />
+            <button id="chatbot-send-btn" class="btn btn-danger rounded-pill px-3 fw-bold shadow-sm">Gửi</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("chatbot-toggle-btn");
+        const closeBtn = document.getElementById("chatbot-close-btn");
+        const chatWindow = document.getElementById("chatbot-window");
+        const sendBtn = document.getElementById("chatbot-send-btn");
+        const inputField = document.getElementById("chatbot-input");
+        const messagesContainer = document.getElementById("chatbot-messages");
+        const modeAdviceBtn = document.getElementById("chatbot-mode-advice");
+        const modeInterviewBtn = document.getElementById("chatbot-mode-interview");
+        const chatTitle = document.getElementById("chatbot-title");
+
+        // Trạng thái phiên chat
+        let chatMode = "advice";          // advice | interview
+        let chatHistory = [];             // [{role, text}] - gửi kèm để Grok nhớ ngữ cảnh
+        let interviewEnded = false;       // ẩn khi [KẾT THÚC PHỎNG VẤN]
+
+        const WELCOME_ADVICE = "👋 Chào bạn! Mình là trợ lý AI EcoSync (Grok). Bạn cần tư vấn về chiến dịch nào tại Đà Nẵng không?";
+        const WELCOME_INTERVIEW = "🎤 Chào ứng viên! Mình là AI phỏng vấn viên EcoSync. Mình sẽ đặt 5 câu hỏi ngắn để hiểu rõ bạn hơn. Bạn sẵn sàng chứ? Hãy trả lời: \"Mình sẵn sàng\"";
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        // Hiển thị **in đậm** và xuống dòng đơn giản
+        function renderRich(s) {
+            return escapeHtml(s)
+                .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\n/g, "<br>");
+        }
+
+        function resetConversation(mode) {
+            chatHistory = [];
+            interviewEnded = false;
+            messagesContainer.innerHTML = "";
+            addBotBubble(mode === "interview" ? WELCOME_INTERVIEW : WELCOME_ADVICE);
+        }
+
+        function addUserBubble(text) {
+            messagesContainer.innerHTML += `
+                <div class="d-flex justify-content-end mb-2">
+                    <div class="bg-success text-white p-3 rounded-4 shadow-sm" style="max-width: 80%; font-size: 14px;">
+                        ${renderRich(text)}
+                    </div>
+                </div>`;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addBotBubble(text, source) {
+            const badge = source === "fallback"
+                ? `<span class="badge bg-warning text-dark mb-1" style="font-size:9px;">chế độ dự phòng</span><br>`
+                : "";
+            messagesContainer.innerHTML += `
+                <div class="d-flex mb-2">
+                    <div class="bg-white p-3 rounded-4 shadow-sm text-dark border" style="max-width: 85%; font-size: 14px;">
+                        ${badge}${renderRich(text)}
+                    </div>
+                </div>`;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addTypingBubble() {
+            messagesContainer.innerHTML += `
+                <div class="d-flex mb-2" id="chatbot-typing">
+                    <div class="bg-white p-3 rounded-4 shadow-sm text-dark border" style="max-width: 80%; font-size: 14px;">
+                        🤖 <i>AI đang soạn câu trả lời...</i>
+                    </div>
+                </div>`;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        function removeTypingBubble() {
+            const el = document.getElementById("chatbot-typing");
+            if (el) el.remove();
+        }
+
+        function setMode(mode) {
+            chatMode = mode;
+            modeAdviceBtn.classList.toggle("active", mode === "advice");
+            modeInterviewBtn.classList.toggle("active", mode === "interview");
+            modeInterviewBtn.classList.toggle("btn-light", mode === "interview");
+            modeInterviewBtn.classList.toggle("btn-outline-light", mode !== "interview");
+            chatTitle.textContent = mode === "interview" ? "🎤 AI Phỏng vấn EcoSync" : "💬 Trợ lý AI EcoSync";
+            resetConversation(mode);
+        }
+
+        function openChat(mode) {
+            chatWindow.classList.remove("d-none");
+            if (mode) setMode(mode);
+            inputField.focus();
+        }
+        // Hàm toàn cục: các trang khác có thể tự mở chat (PB09 - tự kích hoạt khi ứng tuyển)
+        window.ecosyncOpenChat = openChat;
+
+        toggleBtn.addEventListener("click", () => {
+            if (!chatWindow.classList.contains("d-none")) { chatWindow.classList.add("d-none"); }
+            else { openChat(chatMode); }
+        });
+        closeBtn.addEventListener("click", () => chatWindow.classList.add("d-none"));
+        modeAdviceBtn.addEventListener("click", () => setMode("advice"));
+        modeInterviewBtn.addEventListener("click", () => setMode("interview"));
+
+        // Gửi tin nhắn
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if (!text) return;
+            if (chatMode === "interview" && interviewEnded) {
+                addBotBubble("🎉 Phiên phỏng vấn đã kết thúc. Cảm ơn bạn đã tham gia! Bạn có thể chuyển sang chế độ **💬 Tư vấn** để hỏi thêm về EcoSync.");
+                inputField.value = "";
+                return;
+            }
+
+            addUserBubble(text);
+            chatHistory.push({ role: "user", text: text });
+            inputField.value = "";
+            addTypingBubble();
+
+            try {
+                const response = await fetch('/Chatbot/Ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, mode: chatMode, history: chatHistory.slice(0, -1).slice(-12) })
+                });
+                const data = await response.json();
+                removeTypingBubble();
+
+                addBotBubble(data.reply, data.source);
+                chatHistory.push({ role: "model", text: data.reply });
+                if (chatMode === "interview" && data.reply && data.reply.includes("[KẾT THÚC PHỎNG VẤN]")) {
+                    interviewEnded = true;
+                }
+            } catch (error) {
+                removeTypingBubble();
+                addBotBubble("⚠️ Lỗi kết nối tới máy chủ. Vui lòng thử lại sau!", "fallback");
+                console.error("Lỗi kết nối chatbot:", error);
+            }
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+        inputField.addEventListener("keypress", function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Khởi tạo lời chào mặc định
+        resetConversation("advice");
+    });
+</script>

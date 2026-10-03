@@ -1,0 +1,219 @@
+@model IEnumerable<EcoSyncWeb.Models.Feedback>
+@{
+    ViewData["Title"] = "AI Phân tích phản hồi";
+    var feedbacksList = Model?.ToList() ?? new List<EcoSyncWeb.Models.Feedback>();
+    int total = feedbacksList.Count;
+    int positive = feedbacksList.Count(f => f.Sentiment.Contains("Tích cực"));
+    int neutral = feedbacksList.Count(f => f.Sentiment.Contains("Trung tính"));
+    int warning = feedbacksList.Count(f => f.Sentiment.Contains("Cần cải thiện") || f.Sentiment.Contains("Tiêu cực"));
+
+    // KPI & dữ liệu biểu đồ do Controller tính sẵn
+    int kpiCampaigns = (int)(ViewBag.KpiCampaigns ?? 0);
+    int kpiVolunteers = (int)(ViewBag.KpiVolunteers ?? 0);
+    int kpiRegistrations = (int)(ViewBag.KpiRegistrations ?? 0);
+    int kpiCertificates = (int)(ViewBag.KpiCertificates ?? 0);
+    var chartLabels = (string)(ViewBag.ChartLabels ?? "[]");
+    var chartData = (string)(ViewBag.ChartData ?? "[]");
+    string? aiSummaryJson = ViewBag.AiSummaryJson as string;
+
+    var positivePct = total > 0 ? Math.Round(positive * 100.0 / total, 1) : 0;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-success mb-1">📊 AI Dashboard - Sentiment & KPI Analytics</h2>
+            <p class="text-muted mb-0">Thống kê thời gian thực, phân tích sắc thái cảm xúc bằng Grok và tổng hợp ý kiến tình nguyện viên.</p>
+        </div>
+        <a asp-controller="Project" asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">⬅ Về danh sách dự án</a>
+    </div>
+
+    <!-- PB13: 4 thẻ KPI -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-primary h-100">
+                <h6 class="text-muted fw-bold mb-1">🎯 Tổng chiến dịch</h6>
+                <h3 class="fw-bold text-primary mt-2 mb-0">@kpiCampaigns</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-success h-100">
+                <h6 class="text-muted fw-bold mb-1">👥 Tình nguyện viên</h6>
+                <h3 class="fw-bold text-success mt-2 mb-0">@kpiVolunteers</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-warning h-100">
+                <h6 class="text-muted fw-bold mb-1">📋 Hồ sơ ứng tuyển</h6>
+                <h3 class="fw-bold text-warning mt-2 mb-0">@kpiRegistrations</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-danger h-100">
+                <h6 class="text-muted fw-bold mb-1">🏆 GCN đã cấp</h6>
+                <h3 class="fw-bold text-danger mt-2 mb-0">@kpiCertificates</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- PB13/PB16: biểu đồ Chart.js -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                <h5 class="fw-bold text-success mb-3">📈 Lượt đăng ký theo chiến dịch</h5>
+                <canvas id="chartRegistrations" height="220"></canvas>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                <h5 class="fw-bold text-success mb-3">🥧 Tỷ lệ cảm xúc do AI phân loại (@total phản hồi)</h5>
+                <canvas id="chartSentiment" height="220"></canvas>
+                <div class="text-center small text-muted mt-2">
+                    TB số sao: <strong class="text-dark">@ViewBag.AvgRating ⭐</strong> ·
+                    Tích cực: <strong class="text-success">@positivePct%</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khung AI Tóm tắt thông minh (PB15/PB16: sinh thật bởi Grok) -->
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-light border-start border-4 border-success">
+        <h5 class="fw-bold text-success mb-3">💡 AI Executive Summary (Grok tổng hợp tự động từ phản hồi thật)</h5>
+        <div id="ai-summary-loading" class="text-muted small"><i>⏳ Đang tải tổng hợp AI...</i></div>
+        <div id="ai-summary-content" class="d-none">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="p-3 bg-white rounded-3 shadow-sm mb-3 mb-md-0 h-100">
+                        <h6 class="fw-bold text-success mb-2">🌟 Điểm được ghi nhận:</h6>
+                        <ul class="text-secondary small mb-0 ps-3" id="ai-strengths"></ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+                        <h6 class="fw-bold text-danger mb-2">⚠️ Vấn đề cần cải thiện:</h6>
+                        <ul class="text-secondary small mb-0 ps-3" id="ai-weaknesses"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 bg-white rounded-3 shadow-sm mt-3">
+                <h6 class="fw-bold text-success mb-2">🧾 Nhận xét chung:</h6>
+                <p class="text-secondary small mb-0" id="ai-overall"></p>
+            </div>
+        </div>
+        <div id="ai-summary-empty" class="d-none text-muted small">
+            <i>Chưa đủ dữ liệu hoặc chưa cấu hình API key AI để tổng hợp. Phản hồi mới nhất sẽ được AI phân tích và hiển thị tại đây.</i>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách chi tiết khảo sát -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-success text-white py-3">
+            <h5 class="mb-0 fw-bold">📋 Danh sách chi tiết khảo sát & Điều kiện cấp GCN</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (!feedbacksList.Any())
+            {
+                <div class="text-center py-5">
+                    <p class="text-muted mb-0">Chưa có dữ liệu khảo sát nào được gửi về.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 ps-4">Tình nguyện viên</th>
+                            <th class="py-3">Chi tiết tiêu chí & Ý kiến đóng góp</th>
+                            <th class="py-3">AI Phân tích sắc thái</th>
+                            <th class="py-3 pe-4">Thời gian gửi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in feedbacksList)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-success">@item.AuthorName</td>
+                                <td style="max-width: 450px;" class="small text-dark py-3">@item.Content</td>
+                                <td>
+                                    <span class="badge @(item.Sentiment.Contains("Tích cực") ? "bg-success" : item.Sentiment.Contains("Trung tính") ? "bg-secondary" : "bg-danger") px-3 py-2 rounded-pill">
+                                        @item.Sentiment
+                                    </span>
+                                </td>
+                                <td class="pe-4 text-muted small">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script>
+        // Biểu đồ cột: lượt đăng ký theo chiến dịch
+        const ctxBar = document.getElementById('chartRegistrations');
+        if (ctxBar) {
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(chartLabels),
+                    datasets: [{
+                        label: 'Lượt đăng ký',
+                        data: @Html.Raw(chartData),
+                        backgroundColor: 'rgba(25, 135, 84, 0.75)',
+                        borderColor: '#198754',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        }
+
+        // Biểu đồ tròn: tỷ lệ cảm xúc
+        const ctxPie = document.getElementById('chartSentiment');
+        if (ctxPie) {
+            new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Tích cực 🌟', 'Trung tính 🙂', 'Tiêu cực ⚠️'],
+                    datasets: [{
+                        data: [@positive, @neutral, @warning],
+                        backgroundColor: ['#198754', '#6c757d', '#dc3545']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        // Executive Summary từ Grok (JSON render từ server)
+        const aiJson = @Html.Raw(string.IsNullOrEmpty(aiSummaryJson) ? "null" : aiSummaryJson);
+        const loading = document.getElementById('ai-summary-loading');
+        const content = document.getElementById('ai-summary-content');
+        const empty = document.getElementById('ai-summary-empty');
+        if (aiJson) {
+            loading.classList.add('d-none');
+            content.classList.remove('d-none');
+            const fillList = (id, items) => {
+                const ul = document.getElementById(id);
+                (Array.isArray(items) ? items : [items]).forEach(t => {
+                    const li = document.createElement('li');
+                    li.textContent = t;
+                    ul.appendChild(li);
+                });
+            };
+            fillList('ai-strengths', aiJson.strengths);
+            fillList('ai-weaknesses', aiJson.weaknesses);
+            document.getElementById('ai-overall').textContent = aiJson.overall || '';
+        } else {
+            loading.classList.add('d-none');
+            empty.classList.remove('d-none');
+        }
+    </script>
+}

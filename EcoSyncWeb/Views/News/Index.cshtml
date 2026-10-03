@@ -1,0 +1,67 @@
+@model IEnumerable<EcoSyncWeb.Models.News>
+@{
+    ViewData["Title"] = "Tin tức môi trường";
+    var keyword = ViewBag.Keyword as string;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="text-center mb-4">
+        <h1 class="fw-bold text-success display-5">📰 Tin tức & Bài viết</h1>
+        <p class="text-muted lead">Truyền thông cộng đồng, chia sẻ kiến thức và hoạt động bảo vệ môi trường.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-10">
+                <input type="text" name="keyword" value="@keyword" class="form-control rounded-pill px-3" placeholder="🔍 Tìm bài viết theo tiêu đề hoặc nội dung..." />
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-success rounded-pill fw-bold">Tìm kiếm</button>
+            </div>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm border">
+            Chưa có bài viết nào khớp nội dung tìm kiếm.
+        </div>
+    }
+    else
+    {
+        var first = Model.First();
+        var rest = Model.Skip(1).ToList();
+
+        <!-- Bài viết nổi bật -->
+        <a asp-action="Details" asp-route-id="@first.Id" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white" style="border-left: 6px solid #198754 !important;">
+                <span class="badge bg-success rounded-pill px-3 py-2 mb-2 align-self-start">🌟 Mới nhất</span>
+                <h3 class="fw-bold text-dark">@first.Title</h3>
+                <p class="text-muted mb-2" style="line-height: 1.7;">
+                    @(first.Content.Length > 260 ? first.Content[..260] + "..." : first.Content)
+                </p>
+                <span class="small text-muted">🕒 @first.CreatedAt.ToString("dd/MM/yyyy HH:mm") — bấm để xem chi tiết →</span>
+            </div>
+        </a>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var news in rest)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 bg-white">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <h5 class="fw-bold text-dark mb-2">@news.Title</h5>
+                            <p class="text-muted small flex-grow-1" style="line-height: 1.6;">
+                                @(news.Content.Length > 140 ? news.Content[..140] + "..." : news.Content)
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <span class="text-muted" style="font-size: 12px;">🕒 @news.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                <a asp-action="Details" asp-route-id="@news.Id" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold">Đọc tiếp</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

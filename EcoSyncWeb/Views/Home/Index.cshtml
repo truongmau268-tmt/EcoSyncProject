@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<!-- CSS Tùy chỉnh cho các hiệu ứng -->
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+        border-left: 6px solid #198754; /* Xanh lá đậm */
+    }
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-top: 4px solid transparent;
+    }
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        border-top: 4px solid #198754;
+    }
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<!-- Phần Banner giới thiệu (Hero Section) -->
+<div class="p-5 mb-5 rounded-4 shadow-sm hero-section mt-3">
+    <div class="container-fluid py-4">
+        <h1 class="display-5 fw-bolder text-success mb-3">EcoSync AI</h1>
+        <p class="col-md-9 fs-5 text-secondary mb-4" style="line-height: 1.6;">
+            Website quản lý dự án cộng đồng thông minh và minh bạch. 
+            Kết nối những trái tim nhiệt huyết, tích hợp AI Chatbot hỗ trợ tư vấn và thuật toán phân tích phản hồi tự động để tối ưu hóa mọi chiến dịch.
+        </p>
+        <div class="d-flex gap-3">
+            <a href="#" class="btn btn-success btn-lg px-4 shadow-sm fw-bold">Khám phá dự án</a>
+            @if (!(User.Identity != null && User.Identity.IsAuthenticated))
+            {
+                <a href="/Account/Register" class="btn btn-danger btn-lg px-4 shadow-sm fw-bold">Tham gia ngay</a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Phần tính năng nổi bật (Features) -->
+<div class="row g-4 mb-5">
+    <!-- Tính năng 1 -->
+    <div class="col-md-4">
+        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
+            <div class="icon-wrapper bg-success bg-opacity-10 text-success fs-2">
+                👥 <!-- Bạn có thể thay bằng icon Bootstrap sau -->
+            </div>
+            <h4 class="fw-bold text-dark">Kết nối cộng đồng</h4>
+            <p class="text-muted mt-2">Dễ dàng tham gia các hoạt động tình nguyện, chiến dịch môi trường. Cùng nhau xây dựng một mạng lưới xã hội lan tỏa giá trị tích cực.</p>
+        </div>
+    </div>
+
+    <!-- Tính năng 2 -->
+    <div class="col-md-4">
+        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
+            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger fs-2">
+                🤖
+            </div>
+            <h4 class="fw-bold text-dark">AI Chatbot & Phân tích</h4>
+            <p class="text-muted mt-2">Trợ lý AI luôn sẵn sàng hỗ trợ, giải đáp thắc mắc và tự động đo lường, phân tích phản hồi từ người tham gia chiến dịch theo thời gian thực.</p>
+        </div>
+    </div>
+
+    <!-- Tính năng 3 -->
+    <div class="col-md-4">
+        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
+            <div class="icon-wrapper bg-success bg-opacity-10 text-success fs-2">
+                📊
+            </div>
+            <h4 class="fw-bold text-dark">Quản lý trực quan</h4>
+            <p class="text-muted mt-2">Lên kế hoạch, theo dõi tiến độ chi tiết của từng dự án ngay trên giao diện web. Đảm bảo tính minh bạch và hiệu quả công việc tối đa.</p>
+        </div>
+    </div>
+</div>

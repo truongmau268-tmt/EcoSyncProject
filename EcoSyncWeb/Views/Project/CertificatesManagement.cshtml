@@ -1,0 +1,83 @@
+@model IEnumerable<EcoSyncWeb.Models.Feedback>
+@{
+    ViewData["Title"] = "Quản lý và Cấp Giấy Chứng Nhận";
+    var project = ViewBag.Project as EcoSyncWeb.Models.Project;
+    var certifiedNames = ViewBag.CertifiedNames as List<string> ?? new List<string>();
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-success">🏆 Quản Lý & Cấp Giấy Chứng Nhận</h2>
+            <p class="text-muted mb-0">Chiến dịch: <strong class="text-dark">@project?.Title</strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Volunteers" asp-route-id="@project?.Id" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">📋 Xem DS Tình Nguyện Viên</a>
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Về danh sách</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                Chưa có tình nguyện viên nào gửi khảo sát đánh giá cho chiến dịch này.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 rounded-start">Tình nguyện viên</th>
+                            <th class="py-3">Nội dung khảo sát & Đánh giá</th>
+                            <th class="py-3 text-center">Sắc thái AI</th>
+                            <th class="py-3 text-center rounded-end">Thao tác cấp GCN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fb in Model)
+                        {
+                            bool isCertified = certifiedNames.Contains(fb.AuthorName);
+                            <tr>
+                                <td class="fw-bold text-dark">👤 @fb.AuthorName</td>
+                                <td>
+                                    <span class="text-secondary small">@fb.Content</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (fb.Sentiment != null && fb.Sentiment.Contains("Tích cực"))
+                                    {
+                                        <span class="badge bg-success px-3 py-2 rounded-pill">Tích cực 🌟</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Cần cải thiện ⚠️</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (isCertified)
+                                    {
+                                        <span class="badge bg-primary px-3 py-2 rounded-pill">🏆 Đã cấp GCN</span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="CertifyFeedback" asp-route-id="@fb.Id" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm">🏆 Cấp GCN ngay</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

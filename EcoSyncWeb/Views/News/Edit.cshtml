@@ -1,0 +1,43 @@
+@model EcoSyncWeb.Models.News
+@{
+    ViewData["Title"] = "Sửa bài viết";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-warning py-3 text-center rounded-top-4">
+                    <h4 class="mb-0 fw-bold">✏️ Sửa bài viết</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tiêu đề bài viết:</label>
+                            <input asp-for="Title" class="form-control rounded-pill px-3 py-2" required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Link hình ảnh (tùy chọn):</label>
+                            <input asp-for="ImageUrl" class="form-control rounded-pill px-3 py-2" placeholder="https://..." />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Nội dung bài viết:</label>
+                            <textarea asp-for="Content" class="form-control rounded-4 px-3 py-2" rows="10" required></textarea>
+                            <span asp-validation-for="Content" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Manage" class="btn btn-secondary rounded-pill px-4 fw-bold">Quay lại</a>
+                            <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold shadow-sm">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

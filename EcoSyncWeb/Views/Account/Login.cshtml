@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="row border rounded-5 p-3 bg-white shadow-lg box-area w-100" style="max-width: 900px;">
+        
+        <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box p-4" style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
+            <div class="featured-image mb-3 text-white text-center">
+                <span style="font-size: 64px;">🌿</span>
+            </div>
+            <p class="text-white fs-2 text-center fw-bold">EcoSync</p>
+            <p class="text-white text-center small" style="opacity: 0.85; line-height: 1.6;">Nền tảng quản lý dự án cộng đồng & lan tỏa lối sống xanh tại Đà Nẵng.</p>
+        </div>
+
+        <div class="col-md-6 right-box d-flex justify-content-center align-items-center p-4">
+            <div class="row align-items-center w-100">
+                <div class="header-text mb-4 text-center">
+                    <h3 class="fw-bold text-dark">Chào mừng trở lại!</h3>
+                    <p class="text-muted small">Vui lòng đăng nhập để tiếp tục hành trình xanh.</p>
+                </div>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger py-2 small rounded-3 text-center">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Email</label>
+                        <input name="Email" type="email" class="form-control form-control-lg bg-light fs-6 rounded-pill px-4" placeholder="Nhập email của bạn..." required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">Mật khẩu</label>
+                        <input name="Password" type="password" class="form-control form-control-lg bg-light fs-6 rounded-pill px-4" placeholder="Nhập mật khẩu..." required />
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill shadow-sm">Đăng Nhập</button>
+                    </div>
+
+                    <div class="text-center">
+                        <small class="text-muted">Chưa có tài khoản? <a asp-action="Register" class="text-success fw-bold text-decoration-none">Đăng ký ngay</a></small>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

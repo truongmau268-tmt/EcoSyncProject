@@ -1,0 +1,55 @@
+@model EcoSyncWeb.Models.News
+@{
+    ViewData["Title"] = Model.Title;
+    var related = ViewBag.Related as List<EcoSyncWeb.Models.News> ?? new();
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <a asp-action="Index" class="text-decoration-none small">⬅ Về danh sách tin tức</a>
+
+            <div class="card border-0 shadow-sm rounded-4 bg-white mt-2">
+                <div class="card-body p-5">
+                    <h1 class="fw-bold text-success mb-3">@Model.Title</h1>
+                    <p class="text-muted small border-bottom pb-3">
+                        🕒 Đăng ngày @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm") · Nguồn: Ban biên tập EcoSync
+                    </p>
+
+                    <div class="text-dark" style="line-height: 1.9; white-space: pre-line;">@Model.Content</div>
+
+                    <!-- PB20: Chia sẻ -->
+                    <div class="d-flex align-items-center gap-2 mt-4 pt-3 border-top">
+                        <span class="fw-bold small text-muted">Chia sẻ bài viết:</span>
+                        <a class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold"
+                           href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(Url.Action("Details", "News", new { id = Model.Id }, Context.Request.Scheme))"
+                           target="_blank" rel="noopener">📘 Facebook</a>
+                        <a class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold"
+                           href="https://zalo.me/share?u=@Uri.EscapeDataString(Url.Action("Details", "News", new { id = Model.Id }, Context.Request.Scheme))"
+                           target="_blank" rel="noopener">💬 Zalo</a>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold"
+                                onclick="navigator.clipboard.writeText(location.href); alert('Đã sao chép liên kết bài viết!');">🔗 Copy link</button>
+                    </div>
+                </div>
+            </div>
+
+            @if (related.Any())
+            {
+                <h5 class="fw-bold text-success mt-5 mb-3">📌 Bài viết liên quan</h5>
+                <div class="row row-cols-1 row-cols-md-3 g-3">
+                    @foreach (var item in related)
+                    {
+                        <div class="col">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-white p-3">
+                                    <h6 class="fw-bold text-dark mb-2" style="font-size: 14px;">@item.Title</h6>
+                                    <span class="text-muted" style="font-size: 12px;">🕒 @item.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

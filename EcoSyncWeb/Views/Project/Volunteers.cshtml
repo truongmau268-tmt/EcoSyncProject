@@ -1,0 +1,116 @@
+@model IEnumerable<EcoSyncWeb.Models.ProjectRegistration>
+@{
+    ViewData["Title"] = "Quản lý tình nguyện viên";
+    var project = ViewBag.Project as EcoSyncWeb.Models.Project;
+    var summaries = ViewBag.Summaries as Dictionary<int, EcoSyncWeb.Models.AiSummary> ?? new();
+    bool aiReady = (bool)(ViewBag.AiReady ?? false);
+    string aiProvider = ViewBag.AiProviderName as string ?? "AI";
+    string StatusBadge(string s) => s switch
+    {
+        "Đã duyệt" => "bg-success",
+        "Đã loại" => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-success">📋 Quản Lý Tình Nguyện Viên</h2>
+            <p class="text-muted mb-0">Chiến dịch: <strong class="text-dark">@project?.Title</strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="CertificatesManagement" asp-route-id="@project?.Id" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm">📜 Chuyển đến Cấp GCN</a>
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Về danh sách</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                Chưa có tình nguyện viên nào đăng ký tham gia chiến dịch này.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 rounded-start">Họ và Tên</th>
+                            <th class="py-3">Email / SĐT</th>
+                            <th class="py-3 text-center">Trạng thái hồ sơ</th>
+                            <th class="py-3 text-center rounded-end">Duyệt / Loại & AI Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reg in Model)
+                        {
+                            var summary = summaries.TryGetValue(reg.Id, out var s) ? s : null;
+                            <tr>
+                                <td class="fw-bold text-dark">
+                                    @reg.FullName
+                                    <div class="text-muted small fw-normal">@reg.Note</div>
+                                </td>
+                                <td class="text-muted small">
+                                    @reg.Email<br />@reg.Phone
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @StatusBadge(reg.Status) px-3 py-2 rounded-pill">@reg.Status</span>
+                                    @if (reg.IsCertified)
+                                    {
+                                        <div class="small text-success mt-1">🏆 Đã cấp GCN</div>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-1 justify-content-center flex-wrap mb-2">
+                                        @if (reg.Status != "Đã duyệt")
+                                        {
+                                            <a asp-action="SetRegistrationStatus" asp-route-id="@reg.Id" asp-route-status="Đã duyệt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">✅ Duyệt</a>
+                                        }
+                                        @if (reg.Status != "Đã loại")
+                                        {
+                                            <a asp-action="SetRegistrationStatus" asp-route-id="@reg.Id" asp-route-status="Đã loại" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">❌ Loại</a>
+                                        }
+                                        <a asp-action="GenerateAiSummary" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="return confirm('Gọi Grok API để tạo AI Summary đánh giá ứng viên này?');">🤖 AI Summary</a>
+                                    </div>
+                                    @if (summary != null)
+                                    {
+                                        <div class="bg-light rounded-3 p-3 text-start small mt-2">
+                                            <div class="fw-bold text-primary mb-1">🤖 AI Summary (@summary.MatchPercent% phù hợp) - @summary.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                            <div class="mb-1">🌟 <strong>Điểm mạnh:</strong> @summary.Strengths</div>
+                                            <div class="mb-1">⚠️ <strong>Cần cải thiện:</strong> @summary.Weaknesses</div>
+                                            <div class="text-muted">🧾 @summary.Overall</div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!aiReady)
+            {
+                <div class="alert alert-warning small rounded-3 mt-3 mb-0">
+                    ⚙️ Chưa cấu hình khóa API Grok. Hãy đặt biến môi trường <code>XAI_API_KEY</code> để sử dụng tính năng <strong>🤖 AI Summary</strong>.
+                </div>
+            }
+        }
+    </div>
+</div>

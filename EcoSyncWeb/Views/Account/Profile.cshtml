@@ -1,0 +1,77 @@
+@model EcoSyncWeb.Models.User
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white py-3 text-center">
+                    <h4 class="mb-0 fw-bold">Hồ sơ cá nhân</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show rounded-3 small" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 small" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="EditProfile" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small">Họ và Tên:</label>
+                                <input type="text" name="FullName" class="form-control rounded-pill px-3" value="@Model?.FullName" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small">Email (Không thể thay đổi):</label>
+                                <input type="email" class="form-control rounded-pill px-3 bg-light" value="@Model?.Email" disabled />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small">Số điện thoại (10 số):</label>
+                                <input type="text" name="Phone" class="form-control rounded-pill px-3" value="@Model?.Phone" placeholder="Chưa cập nhật..." />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small">Vai trò tham gia:</label>
+                                <div>
+                                    <span class="badge bg-primary px-3 py-2 rounded-pill">@(Model?.Role ?? "Collaborator")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">🛠 Kỹ năng bản thân (tối đa 1000 ký tự):</label>
+                            <textarea name="Skills" class="form-control rounded-4 px-3 py-2" rows="3" maxlength="1000"
+                                      placeholder="Ví dụ: Giao tiếp - thuyết trình, thiết kế poster Canva, sử dụng Excel, tiếng Anh giao tiếp...">@Model?.Skills</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small">🎖 Kinh nghiệm tình nguyện (tối đa 1000 ký tự):</label>
+                            <textarea name="Experience" class="form-control rounded-4 px-3 py-2" rows="3" maxlength="1000"
+                                      placeholder="Ví dụ: Tham gia Earth Day 2025 tại Đà Nẵng, thành viên CLB Xanh trường ĐH Duy Tân...">@Model?.Experience</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="ChangePassword" class="btn btn-outline-warning rounded-pill px-4 fw-bold">🔐 Đổi mật khẩu</a>
+                            <button type="submit" class="btn btn-success fw-bold rounded-pill shadow-sm px-5 py-2">💾 Lưu thay đổi thông tin</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

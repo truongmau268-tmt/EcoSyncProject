@@ -1,0 +1,55 @@
+@using System.Security.Claims
+@model EcoSyncWeb.Models.Project
+@{
+    ViewData["Title"] = "Phát động chiến dịch mới";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+                <h2 class="fw-bold text-success text-center mb-4">➕ Phát Động Chiến Dịch Mới</h2>
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Tên chiến dịch:</label>
+                        <input asp-for="Title" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Ra quân dọn rác bán đảo Sơn Trà..." required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết chiến dịch:</label>
+                        <textarea asp-for="Description" class="form-control rounded-4 p-3" rows="4" placeholder="Nhập mục tiêu, số lượng tình nguyện viên cần tuyển..." required></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="StartTime" class="form-label fw-bold">Thời gian bắt đầu:</label>
+                            <input asp-for="StartTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
+                            <span asp-validation-for="StartTime" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndTime" class="form-label fw-bold">Thời gian kết thúc:</label>
+                            <input asp-for="EndTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
+                            <span asp-validation-for="EndTime" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Location" class="form-label fw-bold">Địa điểm tổ chức:</label>
+                        <input asp-for="Location" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Bãi biển Mỹ Khê, Đà Nẵng..." required />
+                        <span asp-validation-for="Location" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Quay lại</a>
+                        <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">🚀 Tạo Chiến Dịch</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
