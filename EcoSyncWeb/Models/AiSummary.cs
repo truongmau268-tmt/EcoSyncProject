@@ -12,7 +12,7 @@ namespace EcoSyncWeb.Models
         public string Weaknesses { get; set; } = string.Empty;
         public int MatchPercent { get; set; }
         public string Overall { get; set; } = string.Empty;
-        public string Source { get; set; } = "Grok";
+        public string Source { get; set; } = "Groq";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

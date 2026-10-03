@@ -43,10 +43,10 @@
 
         // Trạng thái phiên chat
         let chatMode = "advice";          // advice | interview
-        let chatHistory = [];             // [{role, text}] - gửi kèm để Grok nhớ ngữ cảnh
+        let chatHistory = [];             // [{role, text}] - gửi kèm để Groq nhớ ngữ cảnh
         let interviewEnded = false;       // ẩn khi [KẾT THÚC PHỎNG VẤN]
 
-        const WELCOME_ADVICE = "👋 Chào bạn! Mình là trợ lý AI EcoSync (Grok). Bạn cần tư vấn về chiến dịch nào tại Đà Nẵng không?";
+        const WELCOME_ADVICE = "👋 Chào bạn! Mình là trợ lý AI EcoSync (Groq). Bạn cần tư vấn về chiến dịch nào tại Đà Nẵng không?";
         const WELCOME_INTERVIEW = "🎤 Chào ứng viên! Mình là AI phỏng vấn viên EcoSync. Mình sẽ đặt 5 câu hỏi ngắn để hiểu rõ bạn hơn. Bạn sẵn sàng chứ? Hãy trả lời: \"Mình sẵn sàng\"";
 
         function escapeHtml(s) {

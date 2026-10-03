@@ -10,7 +10,7 @@ namespace EcoSyncWeb.Models
         public string Mode { get; set; } = "advice"; // advice = tư vấn | interview = phỏng vấn sơ loại
         public string Message { get; set; } = string.Empty;
         public string Reply { get; set; } = string.Empty;
-        public string Source { get; set; } = "Grok"; // Grok | Fallback
+        public string Source { get; set; } = "Groq"; // Groq | Fallback
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

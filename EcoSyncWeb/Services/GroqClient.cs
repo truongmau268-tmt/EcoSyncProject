@@ -4,44 +4,45 @@ using System.Text.Json;
 namespace EcoSyncWeb.Services
 {
     /// <summary>
-    /// Client gọi Grok của xAI qua REST API chuẩn OpenAI-compatible:
-    /// POST {BaseUrl}/chat/completions (mặc định https://api.x.ai/v1).
-    /// Cấu hình Model + BaseUrl trong appsettings.json và khóa API qua XAI_API_KEY
-    /// (hoặc cấu hình Grok:ApiKey bên ngoài appsettings.json).
+    /// Client gọi Groq qua REST API tương thích OpenAI:
+    /// POST {BaseUrl}/chat/completions (mặc định https://api.groq.com/openai/v1).
+    /// Cấu hình trong appsettings.json hoặc dùng biến môi trường API_KEY/GROQ_API_KEY.
     /// </summary>
-    public class GrokClient : IAiClient
+    public class GroqClient : IAiClient
     {
         private readonly HttpClient _http;
         private readonly IConfiguration _config;
-        private readonly ILogger<GrokClient> _logger;
+        private readonly ILogger<GroqClient> _logger;
 
-        public GrokClient(HttpClient http, IConfiguration config, ILogger<GrokClient> logger)
+        public GroqClient(HttpClient http, IConfiguration config, ILogger<GroqClient> logger)
         {
             _http = http;
             _config = config;
             _logger = logger;
         }
 
-        public string ProviderName => "Grok";
+        public string ProviderName => "Groq";
 
         public string ApiKey
         {
             get
             {
-                var configuredKey = _config["Grok:ApiKey"];
+                var configuredKey = _config["Groq:ApiKey"];
                 return !string.IsNullOrWhiteSpace(configuredKey)
                     ? configuredKey
-                    : Environment.GetEnvironmentVariable("XAI_API_KEY") ?? string.Empty;
+                    : Environment.GetEnvironmentVariable("API_KEY")
+                        ?? Environment.GetEnvironmentVariable("GROQ_API_KEY")
+                        ?? string.Empty;
             }
         }
 
-        public string Model => string.IsNullOrWhiteSpace(_config["Grok:Model"])
-            ? "grok-4.7"
-            : _config["Grok:Model"]!;
+        public string Model => string.IsNullOrWhiteSpace(_config["Groq:Model"])
+            ? "openai/gpt-oss-120b"
+            : _config["Groq:Model"]!;
 
-        public string BaseUrl => string.IsNullOrWhiteSpace(_config["Grok:BaseUrl"])
-            ? "https://api.x.ai/v1"
-            : _config["Grok:BaseUrl"]!.TrimEnd('/');
+        public string BaseUrl => string.IsNullOrWhiteSpace(_config["Groq:BaseUrl"])
+            ? "https://api.groq.com/openai/v1"
+            : _config["Groq:BaseUrl"]!.TrimEnd('/');
 
         public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
 
@@ -54,7 +55,7 @@ namespace EcoSyncWeb.Services
         {
             if (!IsConfigured)
             {
-                _logger.LogWarning("Grok API chưa cấu hình key. Hãy đặt biến môi trường XAI_API_KEY.");
+                _logger.LogWarning("Groq API chưa cấu hình key. Hãy đặt Groq:ApiKey hoặc biến môi trường API_KEY/GROQ_API_KEY.");
                 return null;
             }
 
@@ -89,7 +90,7 @@ namespace EcoSyncWeb.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Grok API lỗi {Status}: {Body}", (int)response.StatusCode, body);
+                    _logger.LogError("Groq API lỗi {Status}: {Body}", (int)response.StatusCode, body);
                     return null;
                 }
 
@@ -102,12 +103,12 @@ namespace EcoSyncWeb.Services
                     return string.IsNullOrEmpty(reply) ? null : reply;
                 }
 
-                _logger.LogWarning("Grok phản hồi không có choices: {Body}", body);
+                _logger.LogWarning("Groq phản hồi không có choices: {Body}", body);
                 return null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi kết nối Grok API.");
+                _logger.LogError(ex, "Lỗi kết nối Groq API.");
                 return null;
             }
         }

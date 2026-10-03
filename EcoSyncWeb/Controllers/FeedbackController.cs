@@ -33,7 +33,7 @@ namespace EcoSyncWeb.Controllers
             // Tổng hợp nội dung đánh giá chi tiết các tiêu chí kèm lời chia sẻ của TNV
             string fullContent = $"[TC1 - Tổ chức: {criteria1}] | [TC2 - Hậu cần: {criteria2}] | [TC3 - Ý nghĩa: {criteria3}] - Ý kiến: {content}";
 
-            // --- PB16: AI SENTIMENT ANALYSIS (Grok) ---
+            // --- PB16: AI SENTIMENT ANALYSIS (Groq) ---
             string sentiment = await AnalyzeSentimentAsync(fullContent, rating);
 
             var currentUserName = User.Identity?.Name ?? "Tình nguyện viên";
@@ -66,8 +66,8 @@ namespace EcoSyncWeb.Controllers
         }
 
         /// <summary>
-        /// PB16 - Gọi Grok phân loại cảm xúc phản hồi: Tích cực / Trung tính / Tiêu cực.
-        /// Fallback về luật từ khóa nếu Grok không khả dụng.
+        /// PB16 - Gọi Groq phân loại cảm xúc phản hồi: Tích cực / Trung tính / Tiêu cực.
+        /// Fallback về luật từ khóa nếu Groq không khả dụng.
         /// </summary>
         private async Task<string> AnalyzeSentimentAsync(string text, int rating)
         {
@@ -136,7 +136,7 @@ namespace EcoSyncWeb.Controllers
             ViewBag.ChartData = System.Text.Json.JsonSerializer.Serialize(
                 projects.OrderBy(p => p.StartTime).Select(p => registrations.Count(r => r.ProjectId == p.Id)).ToList());
 
-            // Executive Summary bằng Grok (PB16 nâng cao) - có cache 10 phút để đỡ tốn quota
+            // Executive Summary bằng Groq (PB16 nâng cao) - có cache 10 phút để đỡ tốn quota
             string? summaryJson = null;
             var cacheKey = "AiExecSummary";
             var cached = HttpContext.Session?.GetString(cacheKey);

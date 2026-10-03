@@ -18,9 +18,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Login";
     });
 
-// Chỉ sử dụng API Grok/xAI cho các tính năng AI.
-builder.Services.AddHttpClient<GrokClient>();
-builder.Services.AddScoped<IAiClient>(sp => sp.GetRequiredService<GrokClient>());
+// Chỉ sử dụng Groq API cho các tính năng AI.
+builder.Services.AddHttpClient<GroqClient>();
+builder.Services.AddScoped<IAiClient>(sp => sp.GetRequiredService<GroqClient>());
 
 builder.Services.AddSession();
 
@@ -50,7 +50,7 @@ static void EnsureNewTables(ApplicationDbContext db)
             ""Mode"" TEXT NOT NULL DEFAULT 'advice',
             ""Message"" TEXT NOT NULL DEFAULT '',
             ""Reply"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Grok',
+            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
             ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
         )",
         @"CREATE TABLE IF NOT EXISTS ""AiSummaries"" (
@@ -61,7 +61,7 @@ static void EnsureNewTables(ApplicationDbContext db)
             ""Weaknesses"" TEXT NOT NULL DEFAULT '',
             ""MatchPercent"" INTEGER NOT NULL DEFAULT 0,
             ""Overall"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Grok',
+            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
             ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
         )",
         @"CREATE TABLE IF NOT EXISTS ""News"" (
@@ -126,7 +126,7 @@ static void SeedData(ApplicationDbContext db)
             new News
             {
                 Title = "EcoSync ra mắt nền tảng quản lý chiến dịch môi trường tích hợp AI",
-                Content = "Ngày 04/10/2026, đội ngũ EcoSync chính thức ra mắt nền tảng số hóa toàn bộ quy trình tổ chức chiến dịch tình nguyện môi trường: từ đăng ký, phỏng vấn sơ loại bằng AI Chatbot, đến cấp giấy chứng nhận điện tử tự động. Hệ thống ứng dụng Grok nhằm giảm tải cho ban tổ chức và nâng cao trải nghiệm của tình nguyện viên."
+                Content = "Ngày 04/10/2026, đội ngũ EcoSync chính thức ra mắt nền tảng số hóa toàn bộ quy trình tổ chức chiến dịch tình nguyện môi trường: từ đăng ký, phỏng vấn sơ loại bằng AI Chatbot, đến cấp giấy chứng nhận điện tử tự động. Hệ thống ứng dụng Groq nhằm giảm tải cho ban tổ chức và nâng cao trải nghiệm của tình nguyện viên."
             },
             new News
             {

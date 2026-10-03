@@ -88,7 +88,7 @@
                                         {
                                             <a asp-action="SetRegistrationStatus" asp-route-id="@reg.Id" asp-route-status="Đã loại" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">❌ Loại</a>
                                         }
-                                        <a asp-action="GenerateAiSummary" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="return confirm('Gọi Grok API để tạo AI Summary đánh giá ứng viên này?');">🤖 AI Summary</a>
+                                        <a asp-action="GenerateAiSummary" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="return confirm('Gọi Groq API để tạo AI Summary đánh giá ứng viên này?');">🤖 AI Summary</a>
                                     </div>
                                     @if (summary != null)
                                     {
@@ -108,7 +108,7 @@
             @if (!aiReady)
             {
                 <div class="alert alert-warning small rounded-3 mt-3 mb-0">
-                    ⚙️ Chưa cấu hình khóa API Grok. Hãy đặt biến môi trường <code>XAI_API_KEY</code> để sử dụng tính năng <strong>🤖 AI Summary</strong>.
+                    ⚙️ Chưa cấu hình khóa API Groq. Hãy đặt biến môi trường <code>GROQ_API_KEY</code> hoặc cấu hình <code>Groq:ApiKey</code> để sử dụng tính năng <strong>🤖 AI Summary</strong>.
                 </div>
             }
         }

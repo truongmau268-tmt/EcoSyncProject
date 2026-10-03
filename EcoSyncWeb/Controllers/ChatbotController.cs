@@ -49,7 +49,7 @@ namespace EcoSyncWeb.Controllers
             if (_ai.IsConfigured)
             {
                 reply = await _ai.GenerateAsync(systemPrompt, history, request.Message, temperature: 0.8);
-                if (!string.IsNullOrWhiteSpace(reply)) source = "grok";
+                if (!string.IsNullOrWhiteSpace(reply)) source = "groq";
             }
 
             // Fallback khi chưa cấu hình API key hoặc lỗi mạng/quota
@@ -68,7 +68,7 @@ namespace EcoSyncWeb.Controllers
                 Mode = mode,
                 Message = request.Message,
                 Reply = reply,
-                Source = source == "grok" ? "Grok" : "Fallback"
+                Source = source == "groq" ? "Groq" : "Fallback"
             });
             _context.SaveChanges();
 
@@ -116,7 +116,7 @@ namespace EcoSyncWeb.Controllers
                 """;
         }
 
-        // Logic phân tích từ khóa dự phòng khi Grok không khả dụng
+        // Logic phân tích từ khóa dự phòng khi Groq không khả dụng
         private static string KeywordFallback(string rawMessage, List<Project> projects)
         {
             string userMsg = rawMessage.ToLower().Trim();

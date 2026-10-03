@@ -23,7 +23,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-success mb-1">📊 AI Dashboard - Sentiment & KPI Analytics</h2>
-            <p class="text-muted mb-0">Thống kê thời gian thực, phân tích sắc thái cảm xúc bằng Grok và tổng hợp ý kiến tình nguyện viên.</p>
+            <p class="text-muted mb-0">Thống kê thời gian thực, phân tích sắc thái cảm xúc bằng Groq và tổng hợp ý kiến tình nguyện viên.</p>
         </div>
         <a asp-controller="Project" asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">⬅ Về danh sách dự án</a>
     </div>
@@ -76,9 +76,9 @@
         </div>
     </div>
 
-    <!-- Khung AI Tóm tắt thông minh (PB15/PB16: sinh thật bởi Grok) -->
+    <!-- Khung AI Tóm tắt thông minh (PB15/PB16: sinh thật bởi Groq) -->
     <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-light border-start border-4 border-success">
-        <h5 class="fw-bold text-success mb-3">💡 AI Executive Summary (Grok tổng hợp tự động từ phản hồi thật)</h5>
+        <h5 class="fw-bold text-success mb-3">💡 AI Executive Summary (Groq tổng hợp tự động từ phản hồi thật)</h5>
         <div id="ai-summary-loading" class="text-muted small"><i>⏳ Đang tải tổng hợp AI...</i></div>
         <div id="ai-summary-content" class="d-none">
             <div class="row">
@@ -192,7 +192,7 @@
             });
         }
 
-        // Executive Summary từ Grok (JSON render từ server)
+        // Executive Summary từ Groq (JSON render từ server)
         const aiJson = @Html.Raw(string.IsNullOrEmpty(aiSummaryJson) ? "null" : aiSummaryJson);
         const loading = document.getElementById('ai-summary-loading');
         const content = document.getElementById('ai-summary-content');
