@@ -32,7 +32,7 @@
                         <span asp-validation-for="ImageFile" class="text-danger small"></span>
                         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
                         {
-                            <img src="@Model.ImageUrl" alt="Ảnh chiến dịch hiện tại" class="img-fluid rounded-3 mt-3" style="max-height: 220px; object-fit: cover;" />
+                            <img src="@Model.ImageUrl" alt="Ảnh chiến dịch hiện tại" class="img-fluid mt-3" style="max-height: 220px; object-fit: cover; border-radius: 24px !important;" onerror="this.onerror=null;this.src='/uploads/projects/chiendich@(Model.Id).jpg';" />
                         }
                     </div>
 

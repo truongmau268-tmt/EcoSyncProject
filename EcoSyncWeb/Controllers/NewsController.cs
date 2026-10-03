@@ -110,7 +110,6 @@ namespace EcoSyncWeb.Controllers
             {
                 news.Title = model.Title;
                 news.Content = model.Content;
-                news.ImageUrl = model.ImageUrl;
                 _context.SaveChanges();
                 TempData["SuccessMessage"] = "Đã cập nhật bài viết thành công!";
                 return RedirectToAction("Manage");

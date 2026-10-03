@@ -16,8 +16,16 @@
             <!-- Chuyển chế độ: Tư vấn <-> Phỏng vấn AI -->
             <div class="btn-group btn-group-sm mt-2 w-100" role="group">
                 <button type="button" id="chatbot-mode-advice" class="btn btn-light fw-bold active">💬 Tư vấn</button>
-                <button type="button" id="chatbot-mode-interview" class="btn btn-outline-light fw-bold">🎤 Phỏng vấn AI</button>
+                <button type="button" id="chatbot-mode-interview" class="btn btn-outline-light fw-bold"
+                        disabled="@(User.Identity?.IsAuthenticated != true)"
+                        title="@(User.Identity?.IsAuthenticated == true ? "" : "Đăng nhập để sử dụng phỏng vấn AI")">🎤 Phỏng vấn AI</button>
             </div>
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <div class="text-center mt-2 small">
+                    <a asp-controller="Account" asp-action="Login" class="link-light">Đăng nhập để phỏng vấn AI</a>
+                </div>
+            }
         </div>
         <!-- Nội dung tin nhắn -->
         <div id="chatbot-messages" class="card-body bg-light overflow-auto" style="height: 330px; padding: 15px; display: flex; flex-direction: column; gap: 10px;"></div>
@@ -40,6 +48,7 @@
         const modeAdviceBtn = document.getElementById("chatbot-mode-advice");
         const modeInterviewBtn = document.getElementById("chatbot-mode-interview");
         const chatTitle = document.getElementById("chatbot-title");
+        const canInterview = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
 
         // Trạng thái phiên chat
         let chatMode = "advice";          // advice | interview
@@ -104,6 +113,13 @@
         }
 
         function setMode(mode) {
+            if (mode === "interview" && !canInterview) {
+                mode = "advice";
+                resetConversation(mode);
+                addBotBubble("Bạn cần đăng nhập để sử dụng tính năng phỏng vấn AI. Hãy chọn liên kết đăng nhập phía trên nhé.");
+                return;
+            }
+
             chatMode = mode;
             modeAdviceBtn.classList.toggle("active", mode === "advice");
             modeInterviewBtn.classList.toggle("active", mode === "interview");

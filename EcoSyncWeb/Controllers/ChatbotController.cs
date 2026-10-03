@@ -20,12 +20,24 @@ namespace EcoSyncWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Ask([FromBody] ChatRequest request)
         {
+            if (string.Equals(request?.Mode, "interview", StringComparison.OrdinalIgnoreCase)
+                && User.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized(new
+                {
+                    reply = "Bạn cần đăng nhập để sử dụng tính năng phỏng vấn AI.",
+                    source = "authentication"
+                });
+            }
+
             if (request == null || string.IsNullOrWhiteSpace(request.Message))
             {
                 return Json(new { reply = "Bạn vui lòng nhập câu hỏi để mình hỗ trợ nhé!", source = "fallback" });
             }
 
-            string mode = request.Mode == "interview" ? "interview" : "advice";
+            string mode = string.Equals(request.Mode, "interview", StringComparison.OrdinalIgnoreCase)
+                ? "interview"
+                : "advice";
             var history = (request.History ?? new List<ChatTurnDto>())
                 .Select(h => new ChatTurn
                 {
