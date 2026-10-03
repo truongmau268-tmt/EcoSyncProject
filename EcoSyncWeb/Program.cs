@@ -84,6 +84,7 @@ static void EnsureNewTables(ApplicationDbContext db)
         "ALTER TABLE \"Users\" ADD COLUMN \"Skills\" TEXT",
         "ALTER TABLE \"Users\" ADD COLUMN \"Experience\" TEXT",
         "ALTER TABLE \"Projects\" ADD COLUMN \"TargetVolunteers\" INTEGER",
+        "ALTER TABLE \"Projects\" ADD COLUMN \"ImageUrl\" TEXT",
         "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"Status\" TEXT NOT NULL DEFAULT 'Chờ duyệt'",
         "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"CertificateCode\" TEXT"
     };

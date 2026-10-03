@@ -10,7 +10,7 @@
             <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
                 <h2 class="fw-bold text-warning text-center mb-4">✏️ Chỉnh Sửa Chiến Dịch</h2>
 
-                <form asp-action="Edit" method="post">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
                     <input type="hidden" asp-for="Id" />
 
                     <div class="mb-3">
@@ -23,6 +23,17 @@
                         <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết chiến dịch:</label>
                         <textarea asp-for="Description" class="form-control rounded-4 p-3" rows="4" required></textarea>
                         <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImageFile" class="form-label fw-bold">Tải ảnh chiến dịch lên (tùy chọn):</label>
+                        <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" />
+                        <div class="form-text">JPG, PNG, GIF hoặc WEBP; dung lượng tối đa 5 MB. Để trống nếu giữ ảnh hiện tại.</div>
+                        <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="Ảnh chiến dịch hiện tại" class="img-fluid rounded-3 mt-3" style="max-height: 220px; object-fit: cover;" />
+                        }
                     </div>
 
                     <div class="row mb-3">

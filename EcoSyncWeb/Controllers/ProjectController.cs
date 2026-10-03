@@ -10,13 +10,16 @@ namespace EcoSyncWeb.Controllers
 {
     public class ProjectController : Controller
     {
+        private const long MaxProjectImageSize = 5 * 1024 * 1024;
+        private readonly IWebHostEnvironment _environment;
         private readonly ApplicationDbContext _context;
         private readonly IAiClient _ai;
 
-        public ProjectController(ApplicationDbContext context, IAiClient ai)
+        public ProjectController(ApplicationDbContext context, IAiClient ai, IWebHostEnvironment environment)
         {
             _context = context;
             _ai = ai;
+            _environment = environment;
         }
 
         // --- DANH SÁCH DỰ ÁN + PB08: TÌM KIẾM & LỌC + TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
@@ -340,7 +343,7 @@ namespace EcoSyncWeb.Controllers
             _context.AiSummaries.Add(summary);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = $"Đã tạo AI Summary cho {registration.FullName}: phù hợp {summary.MatchPercent}%.";
+            TempData["SuccessMessage"] = $"Đã phân tích xong hồ sơ của cộng tác viên: {registration.FullName}.Mức độ phù hợp {summary.MatchPercent}%.";
             return RedirectToAction("Volunteers", new { id = registration.ProjectId });
         }
 
@@ -507,10 +510,14 @@ namespace EcoSyncWeb.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Create(Project project)
+        public async Task<IActionResult> Create(Project project)
         {
             var userRole = User.FindFirstValue(ClaimTypes.Role);
             if (userRole != "Admin") return RedirectToAction("Index");
+
+            var imageError = await ValidateProjectImageAsync(project.ImageFile);
+            if (imageError != null) ModelState.AddModelError(nameof(project.ImageFile), imageError);
+            if (!ModelState.IsValid) return View(project);
 
             if (project.EndTime <= project.StartTime)
             {
@@ -518,10 +525,17 @@ namespace EcoSyncWeb.Controllers
                 return View(project);
             }
 
+            if (project.ImageFile != null)
+            {
+                project.ImageUrl = await SaveProjectImageAsync(project.ImageFile);
+            }
+
             project.Status = ComputeStatus(project);
             _context.Projects.Add(project);
             _context.SaveChanges();
-            TempData["SuccessMessage"] = "Đã phát động chiến dịch mới thành công!";
+            TempData["SuccessMessage"] = project.ImageUrl != null
+                ? "Đã phát động chiến dịch mới thành công và tải ảnh lên!"
+                : "Đã phát động chiến dịch mới thành công! Bạn có thể thêm ảnh bằng nút Sửa.";
             return RedirectToAction("Index");
         }
 
@@ -540,20 +554,44 @@ namespace EcoSyncWeb.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Edit(Project project)
+        public async Task<IActionResult> Edit(Project project)
         {
             var userRole = User.FindFirstValue(ClaimTypes.Role);
             if (userRole != "Admin") return RedirectToAction("Index");
 
+            var existingProject = _context.Projects.FirstOrDefault(p => p.Id == project.Id);
+            if (existingProject == null) return RedirectToAction("Index");
+
+            var imageError = await ValidateProjectImageAsync(project.ImageFile);
+            if (imageError != null) ModelState.AddModelError(nameof(project.ImageFile), imageError);
+            if (!ModelState.IsValid)
+            {
+                project.ImageUrl = existingProject.ImageUrl;
+                return View(project);
+            }
+
             if (project.EndTime <= project.StartTime)
             {
+                project.ImageUrl = existingProject.ImageUrl;
                 TempData["ErrorMessage"] = "Thời gian kết thúc phải sau thời gian bắt đầu!";
                 return View(project);
             }
 
-            project.Status = ComputeStatus(project);
-            _context.Projects.Update(project);
+            var previousImageUrl = existingProject.ImageUrl;
+            existingProject.Title = project.Title;
+            existingProject.Description = project.Description;
+            existingProject.StartTime = project.StartTime;
+            existingProject.EndTime = project.EndTime;
+            existingProject.Location = project.Location;
+            existingProject.Status = ComputeStatus(existingProject);
+
+            if (project.ImageFile != null)
+            {
+                existingProject.ImageUrl = await SaveProjectImageAsync(project.ImageFile);
+            }
+
             _context.SaveChanges();
+            if (project.ImageFile != null) DeleteProjectImage(previousImageUrl);
             TempData["SuccessMessage"] = "Cập nhật chiến dịch thành công!";
             return RedirectToAction("Index");
         }
@@ -584,9 +622,73 @@ namespace EcoSyncWeb.Controllers
 
                 _context.Projects.Remove(project);
                 _context.SaveChanges();
+                DeleteProjectImage(project.ImageUrl);
                 TempData["SuccessMessage"] = "Đã xóa chiến dịch thành công!";
             }
             return RedirectToAction("Index");
+        }
+
+        private static async Task<string?> ValidateProjectImageAsync(IFormFile? image)
+        {
+            if (image == null || image.Length == 0) return null;
+            if (image.Length > MaxProjectImageSize)
+            {
+                return "Ảnh không được vượt quá 5 MB.";
+            }
+
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+            if (extension is not (".jpg" or ".jpeg" or ".png" or ".gif" or ".webp"))
+            {
+                return "Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.";
+            }
+
+            var header = new byte[12];
+            await using var stream = image.OpenReadStream();
+            var bytesRead = await stream.ReadAsync(header.AsMemory());
+            var isJpeg = extension is ".jpg" or ".jpeg"
+                && bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
+            var isPng = extension == ".png"
+                && bytesRead >= 8 && header.AsSpan(0, 8).SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
+            var isGif = extension == ".gif"
+                && bytesRead >= 6 && (header.AsSpan(0, 6).SequenceEqual("GIF87a"u8) || header.AsSpan(0, 6).SequenceEqual("GIF89a"u8));
+            var isWebp = extension == ".webp"
+                && bytesRead >= 12 && header.AsSpan(0, 4).SequenceEqual("RIFF"u8) && header.AsSpan(8, 4).SequenceEqual("WEBP"u8);
+
+            return isJpeg || isPng || isGif || isWebp
+                ? null
+                : "Nội dung tệp không khớp với định dạng ảnh đã chọn.";
+        }
+
+        private async Task<string> SaveProjectImageAsync(IFormFile image)
+        {
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+            var fileName = $"{Guid.NewGuid():N}{extension}";
+            var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "projects");
+            Directory.CreateDirectory(uploadDirectory);
+
+            var filePath = Path.Combine(uploadDirectory, fileName);
+            await using var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
+            await image.CopyToAsync(stream);
+
+            return $"/uploads/projects/{fileName}";
+        }
+
+        private void DeleteProjectImage(string? imageUrl)
+        {
+            const string uploadPrefix = "/uploads/projects/";
+            if (string.IsNullOrWhiteSpace(imageUrl) || !imageUrl.StartsWith(uploadPrefix, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var fileName = imageUrl[uploadPrefix.Length..];
+            if (string.IsNullOrWhiteSpace(fileName) || Path.GetFileName(fileName) != fileName)
+            {
+                return;
+            }
+
+            var filePath = Path.Combine(_environment.WebRootPath, "uploads", "projects", fileName);
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
         }
     }
 }

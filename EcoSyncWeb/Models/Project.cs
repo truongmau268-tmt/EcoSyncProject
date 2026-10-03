@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace EcoSyncWeb.Models
 {
@@ -10,6 +12,11 @@ namespace EcoSyncWeb.Models
         
         [Required]
         public string Title { get; set; } // Tên chiến dịch
+
+        public string? ImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
         
         public string Description { get; set; } // Mô tả ngắn gọn
         
@@ -26,6 +33,6 @@ namespace EcoSyncWeb.Models
 
         public int? TargetVolunteers { get; set; } // Chỉ tiêu số lượng tình nguyện viên (PB07)
 
-        public string Status { get; set; } // Trạng thái: Sắp diễn ra, Đang diễn ra, Đã kết thúc
+        public string Status { get; set; } = "Sắp diễn ra"; // Trạng thái: Sắp diễn ra, Đang diễn ra, Đã kết thúc
     }
 }

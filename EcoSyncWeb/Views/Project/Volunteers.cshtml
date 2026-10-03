@@ -88,15 +88,26 @@
                                         {
                                             <a asp-action="SetRegistrationStatus" asp-route-id="@reg.Id" asp-route-status="Đã loại" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">❌ Loại</a>
                                         }
-                                        <a asp-action="GenerateAiSummary" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="return confirm('Gọi Groq API để tạo AI Summary đánh giá ứng viên này?');">🤖 AI Summary</a>
+                                        <a asp-action="GenerateAiSummary" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="return confirm('Hệ thống sẽ phân tích độ phù hợp của hồ sơ bằng AI. Xác nhận thực hiện? giá ứng viên này?');">🤖 AI Summary</a>
                                     </div>
                                     @if (summary != null)
                                     {
                                         <div class="bg-light rounded-3 p-3 text-start small mt-2">
-                                            <div class="fw-bold text-primary mb-1">🤖 AI Summary (@summary.MatchPercent% phù hợp) - @summary.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
-                                            <div class="mb-1">🌟 <strong>Điểm mạnh:</strong> @summary.Strengths</div>
-                                            <div class="mb-1">⚠️ <strong>Cần cải thiện:</strong> @summary.Weaknesses</div>
-                                            <div class="text-muted">🧾 @summary.Overall</div>
+                                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+                                                <div class="fw-bold text-primary">🤖 AI Summary (@summary.MatchPercent% phù hợp) - @summary.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                        data-summary-toggle
+                                                        aria-controls="ai-summary-details-@reg.Id"
+                                                        aria-expanded="true">
+                                                    Ẩn nhận xét
+                                                </button>
+                                            </div>
+                                            <div id="ai-summary-details-@reg.Id">
+                                                <div class="mb-1">🌟 <strong>Điểm mạnh:</strong> @summary.Strengths</div>
+                                                <div class="mb-1">⚠️ <strong>Cần cải thiện:</strong> @summary.Weaknesses</div>
+                                                <div class="text-muted">🧾 @summary.Overall</div>
+                                            </div>
                                         </div>
                                     }
                                 </td>
@@ -114,3 +125,18 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll("[data-summary-toggle]").forEach(button => {
+            button.addEventListener("click", () => {
+                const details = document.getElementById(button.getAttribute("aria-controls"));
+                const isExpanded = button.getAttribute("aria-expanded") === "true";
+
+                details.hidden = isExpanded;
+                button.setAttribute("aria-expanded", String(!isExpanded));
+                button.textContent = isExpanded ? "Xem nhận xét" : "Ẩn nhận xét";
+            });
+        });
+    </script>
+}
