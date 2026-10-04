@@ -73,6 +73,12 @@
                         @TempData["ErrorMessage"]
                     </div>
                 }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success py-2 small text-center">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
 
                 <form asp-action="Login" method="post">
                     <div class="mb-3">
@@ -87,6 +93,9 @@
                         <input name="Password" type="password"
                                class="form-control form-control-lg bg-light fs-6 px-4"
                                placeholder="Nhập mật khẩu..." required />
+                        <div class="text-end mt-2">
+                            <a asp-action="ForgotPassword" class="small text-success text-decoration-none">Quên mật khẩu?</a>
+                        </div>
                     </div>
 
                     <div class="d-grid mb-3">

@@ -21,6 +21,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Chỉ sử dụng Groq API cho các tính năng AI.
 builder.Services.AddHttpClient<GroqClient>();
 builder.Services.AddScoped<IAiClient>(sp => sp.GetRequiredService<GroqClient>());
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 builder.Services.AddSession();
 
@@ -83,6 +84,8 @@ static void EnsureNewTables(ApplicationDbContext db)
         "ALTER TABLE \"Users\" ADD COLUMN \"IsBlocked\" INTEGER NOT NULL DEFAULT 0",
         "ALTER TABLE \"Users\" ADD COLUMN \"Skills\" TEXT",
         "ALTER TABLE \"Users\" ADD COLUMN \"Experience\" TEXT",
+        "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenHash\" TEXT",
+        "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenExpiresAt\" TEXT",
         "ALTER TABLE \"Projects\" ADD COLUMN \"TargetVolunteers\" INTEGER",
         "ALTER TABLE \"Projects\" ADD COLUMN \"ImageUrl\" TEXT",
         "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"Status\" TEXT NOT NULL DEFAULT 'Chờ duyệt'",

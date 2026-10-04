@@ -6,16 +6,25 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Net.Mail;
+using EcoSyncWeb.Services;
 
 namespace EcoSyncWeb.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailSender _emailSender;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context, IEmailSender emailSender, ILogger<AccountController> logger)
         {
             _context = context;
+            _emailSender = emailSender;
+            _logger = logger;
         }
 
         // --- ĐĂNG NHẬP (GET) ---
@@ -23,6 +32,139 @@ namespace EcoSyncWeb.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                TempData["ErrorMessage"] = "Vui lòng nhập Email đã đăng ký!";
+                return View();
+            }
+
+            email = email.Trim().ToLowerInvariant();
+            var user = _context.Users.FirstOrDefault(u => u.Email.ToLower() == email);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Email chưa được đăng ký trong hệ thống!";
+                return View();
+            }
+
+            var token = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+            user.PasswordResetTokenHash = HashResetToken(token);
+            user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            _context.SaveChanges();
+
+            var resetLink = Url.ActionLink(
+                nameof(ResetPassword),
+                "Account",
+                new { email = user.Email, token },
+                Request.Scheme);
+
+            if (resetLink == null)
+            {
+                throw new InvalidOperationException("Không thể tạo liên kết đặt lại mật khẩu.");
+            }
+
+            try
+            {
+                await _emailSender.SendPasswordResetAsync(user.Email, resetLink);
+            }
+            catch (InvalidOperationException ex)
+            {
+                user.PasswordResetTokenHash = null;
+                user.PasswordResetTokenExpiresAt = null;
+                _context.SaveChanges();
+                _logger.LogError(ex, "Email SMTP chưa được cấu hình để gửi yêu cầu đặt lại mật khẩu.");
+                TempData["ErrorMessage"] = "Chức năng gửi email chưa được cấu hình. Vui lòng liên hệ quản trị viên.";
+                return View();
+            }
+            catch (SmtpException ex)
+            {
+                user.PasswordResetTokenHash = null;
+                user.PasswordResetTokenExpiresAt = null;
+                _context.SaveChanges();
+                _logger.LogError(ex, "Không thể gửi email đặt lại mật khẩu tới {Email}.", user.Email);
+                TempData["ErrorMessage"] = "Không thể gửi email lúc này. Vui lòng thử lại sau.";
+                return View();
+            }
+
+            TempData["SuccessMessage"] = "Yêu cầu khôi phục mật khẩu đã được gửi. Vui lòng kiểm tra email (liên kết có hiệu lực trong 15 phút).";
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            ViewBag.Email = email;
+            ViewBag.Token = token;
+            if (!IsResetTokenValid(email, token))
+            {
+                TempData["ErrorMessage"] = "Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng gửi yêu cầu mới!";
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(string email, string token, string newPassword, string confirmPassword)
+        {
+            ViewBag.Email = email;
+            ViewBag.Token = token;
+
+            var user = FindUserWithValidResetToken(email, token);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng gửi yêu cầu mới!";
+                return View();
+            }
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+            {
+                TempData["ErrorMessage"] = "Mật khẩu mới phải có tối thiểu 8 ký tự!";
+                return View();
+            }
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "Mật khẩu mới và mật khẩu xác nhận không khớp!";
+                return View();
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordResetTokenHash = null;
+            user.PasswordResetTokenExpiresAt = null;
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        private User? FindUserWithValidResetToken(string email, string token)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            {
+                return null;
+            }
+
+            var tokenHash = HashResetToken(token);
+            return _context.Users.FirstOrDefault(u =>
+                u.Email.ToLower() == email.Trim().ToLower() &&
+                u.PasswordResetTokenHash == tokenHash &&
+                u.PasswordResetTokenExpiresAt > DateTime.UtcNow);
+        }
+
+        private bool IsResetTokenValid(string email, string token) =>
+            FindUserWithValidResetToken(email, token) != null;
+
+        private static string HashResetToken(string token) =>
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
         // --- ĐĂNG NHẬP (POST) ---
         [HttpPost]
@@ -230,6 +372,8 @@ namespace EcoSyncWeb.Controllers
             }
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordResetTokenHash = null;
+            user.PasswordResetTokenExpiresAt = null;
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";

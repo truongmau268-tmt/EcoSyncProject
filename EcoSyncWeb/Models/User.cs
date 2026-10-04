@@ -9,6 +9,9 @@ namespace EcoSyncWeb.Models
         public string? Phone { get; set; } // Cho phép để trống hoặc nhận số điện thoại
         public string Role { get; set; } = "Collaborator";
 
+        public string? PasswordResetTokenHash { get; set; }
+        public DateTime? PasswordResetTokenExpiresAt { get; set; }
+
         // PB19: khóa/mở khóa tài khoản CTV vi phạm
         public bool IsBlocked { get; set; } = false;
 
