@@ -17,6 +17,8 @@ namespace EcoSyncWeb.Models
         public int Rating { get; set; } // Số sao (1 đến 5)
         
         public string AuthorName { get; set; } // Người gửi
+
+        public string? AuthorEmail { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

@@ -29,7 +29,7 @@
         @if (!Model.Any())
         {
             <div class="text-center py-5 text-muted">
-                Chưa có tình nguyện viên nào gửi khảo sát đánh giá cho chiến dịch này.
+                Chưa có tình nguyện viên nào gửi đánh giá cho chiến dịch này.
             </div>
         }
         else
@@ -39,7 +39,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-3 rounded-start">Tình nguyện viên</th>
-                            <th class="py-3">Nội dung khảo sát & Đánh giá</th>
+                            <th class="py-3">Đánh giá & Ý kiến đóng góp</th>
                             <th class="py-3 text-center">Sắc thái AI</th>
                             <th class="py-3 text-center rounded-end">Thao tác cấp GCN</th>
                         </tr>
@@ -51,6 +51,7 @@
                             <tr>
                                 <td class="fw-bold text-dark">👤 @fb.AuthorName</td>
                                 <td>
+                                    <div class="text-warning mb-1" aria-label="@fb.Rating trên 5 sao">@string.Concat(Enumerable.Repeat("★", Math.Clamp(fb.Rating, 0, 5)))@string.Concat(Enumerable.Repeat("☆", 5 - Math.Clamp(fb.Rating, 0, 5)))</div>
                                     <span class="text-secondary small">@fb.Content</span>
                                 </td>
                                 <td class="text-center">

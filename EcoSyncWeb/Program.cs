@@ -22,13 +22,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddHttpClient<GroqClient>();
 builder.Services.AddScoped<IAiClient>(sp => sp.GetRequiredService<GroqClient>());
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
-
 builder.Services.AddSession();
-
 builder.Services.AddControllersWithViews();
-
 var app = builder.Build();
-
 // --- TỰ ĐỘNG TẠO BẢNG & DATABASE NẾU CHƯA CÓ ---
 using (var scope = app.Services.CreateScope())
 {
@@ -39,7 +35,6 @@ using (var scope = app.Services.CreateScope())
     EnsureNewTables(dbContext);
     SeedData(dbContext);
 }
-
 // Bổ sung bảng & cột mới cho database SQLite đã tồn tại từ trước (an toàn, bỏ qua nếu đã có)
 static void EnsureNewTables(ApplicationDbContext db)
 {
@@ -86,6 +81,7 @@ static void EnsureNewTables(ApplicationDbContext db)
         "ALTER TABLE \"Users\" ADD COLUMN \"Experience\" TEXT",
         "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenHash\" TEXT",
         "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenExpiresAt\" TEXT",
+        "ALTER TABLE \"Feedbacks\" ADD COLUMN \"AuthorEmail\" TEXT",
         "ALTER TABLE \"Projects\" ADD COLUMN \"TargetVolunteers\" INTEGER",
         "ALTER TABLE \"Projects\" ADD COLUMN \"ImageUrl\" TEXT",
         "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"Status\" TEXT NOT NULL DEFAULT 'Chờ duyệt'",
@@ -96,6 +92,8 @@ static void EnsureNewTables(ApplicationDbContext db)
         try { db.Database.ExecuteSqlRaw(sql); }
         catch (Exception) { /* cột đã tồn tại */ }
     }
+    db.Database.ExecuteSqlRaw(
+        "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Feedbacks_ProjectId_AuthorEmail\" ON \"Feedbacks\" (\"ProjectId\", \"AuthorEmail\")");
     db.SaveChanges();
 }
 

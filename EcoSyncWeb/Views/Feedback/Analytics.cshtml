@@ -123,7 +123,8 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-3 ps-4">Tình nguyện viên</th>
-                            <th class="py-3">Chi tiết tiêu chí & Ý kiến đóng góp</th>
+                            <th class="py-3">Đánh giá sao</th>
+                            <th class="py-3">Ý kiến đóng góp</th>
                             <th class="py-3">AI Phân tích sắc thái</th>
                             <th class="py-3 pe-4">Thời gian gửi</th>
                         </tr>
@@ -133,6 +134,7 @@
                         {
                             <tr>
                                 <td class="ps-4 fw-bold text-success">@item.AuthorName</td>
+                                <td class="text-warning" aria-label="@item.Rating trên 5 sao">@string.Concat(Enumerable.Repeat("★", Math.Clamp(item.Rating, 0, 5)))@string.Concat(Enumerable.Repeat("☆", 5 - Math.Clamp(item.Rating, 0, 5)))</td>
                                 <td style="max-width: 450px;" class="small text-dark py-3">@item.Content</td>
                                 <td>
                                     <span class="badge @(item.Sentiment.Contains("Tích cực") ? "bg-success" : item.Sentiment.Contains("Trung tính") ? "bg-secondary" : "bg-danger") px-3 py-2 rounded-pill">

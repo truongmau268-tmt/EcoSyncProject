@@ -22,22 +22,50 @@ namespace EcoSyncWeb.Controllers
         // --- GỬI ĐÁNH GIÁ / KHẢO SÁT NHẬN GCN ---
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Submit(int projectId, string criteria1, string criteria2, string criteria3, string content, int rating)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Submit(int projectId, string content, int rating)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
-                TempData["ErrorMessage"] = "Vui lòng nhập nội dung chia sẻ ngắn bằng lời!";
+                TempData["ErrorMessage"] = "Vui lòng nhập nội dung nhận xét!";
+                return RedirectToAction("Details", "Project", new { id = projectId });
+            }
+            if (content.Trim().Length > 1000)
+            {
+                TempData["ErrorMessage"] = "Nội dung nhận xét không được vượt quá 1000 ký tự!";
+                return RedirectToAction("Details", "Project", new { id = projectId });
+            }
+            if (rating is < 1 or > 5)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn mức đánh giá từ 1 đến 5 sao!";
                 return RedirectToAction("Details", "Project", new { id = projectId });
             }
 
-            // Tổng hợp nội dung đánh giá chi tiết các tiêu chí kèm lời chia sẻ của TNV
-            string fullContent = $"[TC1 - Tổ chức: {criteria1}] | [TC2 - Hậu cần: {criteria2}] | [TC3 - Ý nghĩa: {criteria3}] - Ý kiến: {content}";
-
-            // --- PB16: AI SENTIMENT ANALYSIS (Groq) ---
-            string sentiment = await AnalyzeSentimentAsync(fullContent, rating);
-
-            var currentUserName = User.Identity?.Name ?? "Tình nguyện viên";
             var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
+            var currentUserName = User.Identity?.Name ?? "Tình nguyện viên";
+            var project = _context.Projects.FirstOrDefault(p => p.Id == projectId);
+            var registration = _context.ProjectRegistrations.FirstOrDefault(r =>
+                r.ProjectId == projectId && r.Email == currentUserEmail);
+
+            if (project == null || project.EndTime > DateTime.Now)
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể đánh giá chiến dịch đã kết thúc!";
+                return RedirectToAction("Details", "Project", new { id = projectId });
+            }
+            if (registration == null || registration.Status != "Đã duyệt")
+            {
+                TempData["ErrorMessage"] = "Chỉ tình nguyện viên có hồ sơ tham gia đã được duyệt mới có thể đánh giá!";
+                return RedirectToAction("Details", "Project", new { id = projectId });
+            }
+            if (registration.IsEvaluated || _context.Feedbacks.Any(f =>
+                    f.ProjectId == projectId && f.AuthorEmail == currentUserEmail))
+            {
+                TempData["ErrorMessage"] = "Bạn đã gửi đánh giá cho chiến dịch này rồi!";
+                return RedirectToAction("Details", "Project", new { id = projectId });
+            }
+
+            var fullContent = content.Trim();
+            var sentiment = await AnalyzeSentimentAsync(fullContent, rating);
 
             var feedback = new Feedback
             {
@@ -45,23 +73,16 @@ namespace EcoSyncWeb.Controllers
                 Content = fullContent,
                 Rating = rating,
                 Sentiment = sentiment,
-                AuthorName = currentUserName
+                AuthorName = currentUserName,
+                AuthorEmail = currentUserEmail
             };
 
             _context.Feedbacks.Add(feedback);
-
-            // --- TỰ ĐỘNG ĐÁNH DẤU TNV ĐÃ HOÀN THÀNH KHẢO SÁT ---
-            var registration = _context.ProjectRegistrations
-                .FirstOrDefault(r => r.ProjectId == projectId && (r.Email == currentUserEmail || r.FullName == currentUserName));
-
-            if (registration != null)
-            {
-                registration.IsEvaluated = true;
-            }
+            registration.IsEvaluated = true;
 
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Đã gửi đánh giá thành công! AI đã phân tích cảm xúc phản hồi của bạn để làm căn cứ cấp Giấy chứng nhận.";
+            TempData["SuccessMessage"] = "Cảm ơn bạn đã gửi đánh giá!";
             return RedirectToAction("Details", "Project", new { id = projectId });
         }
 

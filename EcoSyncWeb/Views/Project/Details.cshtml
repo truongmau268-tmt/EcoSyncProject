@@ -36,80 +36,67 @@
         <p class="text-muted" style="font-size: 16px; line-height: 1.8;">@Model.Description</p>
     </div>
 
-    <!-- PHIẾU KHẢO SÁT & ĐÁNH GIÁ (Dành cho AI Sentiment Analytics) -->
+    <!-- ĐÁNH GIÁ SAU CHIẾN DỊCH -->
     <div class="mt-5">
-        <h3 class="fw-bold text-success mb-2">📋 Phiếu Khảo Sát & Đánh Giá Nhận Giấy Chứng Nhận</h3>
-        <p class="text-muted mb-4">Tình nguyện viên vui lòng hoàn thành các tiêu chí đánh giá dưới đây để Ban tổ chức làm cơ sở tổng hợp dữ liệu cấp GCN tham gia.</p>
+        <h3 class="fw-bold text-success mb-2">💬 Đóng góp ý kiến &amp; Đánh giá chiến dịch</h3>
+        <p class="text-muted mb-4">Chia sẻ trải nghiệm của bạn sau khi tham gia chiến dịch.</p>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger rounded-3" role="alert">@TempData["ErrorMessage"]</div>
+        }
 
         @if (ViewBag.HasSubmittedFeedback == true)
         {
-            <!-- THÔNG BÁO ĐÃ GỬI THÀNH CÔNG (Thay thế form) -->
             <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white" style="border: 2px solid #198754 !important;">
                 <div class="mb-3">
                     <span style="font-size: 50px;">🎉</span>
                 </div>
-                <h4 class="fw-bold text-success mb-2">Cảm ơn bạn đã hoàn thành đánh giá!</h4>
-                <p class="text-secondary mb-4">Phản hồi và kết quả khảo sát của bạn đã được ghi nhận vào hệ thống phân tích. Ban tổ chức đang tiến hành xét duyệt và cấp Giấy chứng nhận điện tử cho bạn.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a asp-action="MyCertificates" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">🏆 Xem GCN của tôi</a>
-                </div>
+                <h4 class="fw-bold text-success mb-2">Cảm ơn bạn đã gửi đánh giá!</h4>
+                <p class="text-secondary mb-0">Phản hồi của bạn đã được ghi nhận.</p>
+            </div>
+        }
+        else if (ViewBag.CanSubmitFeedback == true)
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                <form asp-controller="Feedback" asp-action="Submit" method="post">
+                    <input type="hidden" name="projectId" value="@Model.Id" />
+
+                    <fieldset class="mb-4">
+                        <legend class="fw-bold text-dark fs-6 mb-2">Đánh giá chiến dịch</legend>
+                        <div class="star-rating" role="radiogroup" aria-label="Chọn số sao đánh giá">
+                            @for (var rating = 5; rating >= 1; rating--)
+                            {
+                                var inputId = $"rating-{rating}";
+                                <input class="star-rating-input" type="radio" name="rating" id="@inputId" value="@rating" required />
+                                <label class="star-rating-label" for="@inputId" title="@rating sao" aria-label="@rating sao">★</label>
+                            }
+                        </div>
+                    </fieldset>
+
+                    <div class="mb-3">
+                        <label for="feedback-content" class="fw-bold text-dark d-block mb-2">Chia sẻ cảm nhận và góp ý của bạn</label>
+                        <textarea id="feedback-content" name="content" class="form-control rounded-4 p-3" rows="4"
+                                  maxlength="1000" placeholder="Nhập chia sẻ hoặc góp ý của bạn..." required></textarea>
+                        <div class="form-text">Tối đa 1000 ký tự.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Gửi đánh giá</button>
+                </form>
             </div>
         }
         else
         {
-            <!-- FORM KHẢO SÁT BAN ĐẦU -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                <form asp-controller="Feedback" asp-action="Submit" method="post">
-                    <input type="hidden" name="projectId" value="@Model.Id" />
-                    <input type="hidden" name="rating" value="5" />
-                    
-                    <!-- Tiêu chí 1 -->
-                    <div class="mb-4 p-3 bg-light rounded-3 border">
-                        <label class="fw-bold text-dark d-block mb-2">1. Công tác tổ chức và điều phối chung của Ban tổ chức:</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria1" id="c1_yes" value="Hài lòng" required>
-                            <label class="form-check-label text-success fw-semibold" for="c1_yes">Hài lòng 😊</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria1" id="c1_no" value="Không hài lòng">
-                            <label class="form-check-label text-danger fw-semibold" for="c1_no">Không hài lòng 😞</label>
-                        </div>
-                    </div>
-
-                    <!-- Tiêu chí 2 -->
-                    <div class="mb-4 p-3 bg-light rounded-3 border">
-                        <label class="fw-bold text-dark d-block mb-2">2. Khâu hậu cần (Dụng cụ thu gom rác, nước uống, bảo hộ):</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria2" id="c2_yes" value="Hài lòng" required>
-                            <label class="form-check-label text-success fw-semibold" for="c2_yes">Hài lòng 😊</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria2" id="c2_no" value="Không hài lòng">
-                            <label class="form-check-label text-danger fw-semibold" for="c2_no">Không hài lòng 😞</label>
-                        </div>
-                    </div>
-
-                    <!-- Tiêu chí 3 -->
-                    <div class="mb-4 p-3 bg-light rounded-3 border">
-                        <label class="fw-bold text-dark d-block mb-2">3. Ý nghĩa và tính thiết thực của chiến dịch đối với cộng đồng:</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria3" id="c3_yes" value="Hài lòng" required>
-                            <label class="form-check-label text-success fw-semibold" for="c3_yes">Hài lòng 😊</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="criteria3" id="c3_no" value="Không hài lòng">
-                            <label class="form-check-label text-danger fw-semibold" for="c3_no">Không hài lòng 😞</label>
-                        </div>
-                    </div>
-
-                    <!-- Góp ý -->
-                    <div class="mb-3">
-                        <label class="fw-bold text-dark d-block mb-2">4. Chia sẻ hoặc góp ý ngắn bằng lời:</label>
-                        <textarea name="content" class="form-control rounded-4 p-3" rows="3" placeholder="Nhập ý kiến đóng góp của bạn để chúng tôi cải thiện ở các chiến dịch sau..." required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Gửi đánh giá & Khảo sát</button>
-                </form>
+            <div class="alert alert-info rounded-4" role="status">
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <span>@ViewBag.FeedbackEligibilityMessage </span>
+                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.LoginReturnUrl" class="alert-link">Đăng nhập</a>
+                }
+                else
+                {
+                    @ViewBag.FeedbackEligibilityMessage
+                }
             </div>
         }
 
@@ -131,9 +118,54 @@
                             <h6 class="fw-bold text-dark mb-0">👤 @fb.AuthorName</h6>
                             <span class="text-muted small">🕒 @fb.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
                         </div>
+                        <div class="text-warning mb-2" aria-label="@fb.Rating trên 5 sao">@string.Concat(Enumerable.Repeat("★", Math.Clamp(fb.Rating, 0, 5)))@string.Concat(Enumerable.Repeat("☆", 5 - Math.Clamp(fb.Rating, 0, 5)))</div>
                         <p class="text-secondary mb-0">@fb.Content</p>
                     </div>
+
                 }
             </div>
+
+            <style>
+                .star-rating {
+                    display: inline-flex;
+                    flex-direction: row-reverse;
+                    justify-content: flex-end;
+                    gap: .2rem;
+                }
+
+                .star-rating-input {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    overflow: hidden;
+                    clip: rect(0, 0, 0, 0);
+                    white-space: nowrap;
+                    clip-path: inset(50%);
+                }
+
+                .star-rating-label {
+                    color: #adb5bd;
+                    cursor: pointer;
+                    font-size: 2.5rem;
+                    line-height: 1;
+                    transition: color .15s ease-in-out, transform .15s ease-in-out;
+                }
+
+                .star-rating-label:hover,
+                .star-rating-label:hover ~ .star-rating-label,
+                .star-rating-input:checked ~ .star-rating-label {
+                    color: #ffc107;
+                }
+
+                .star-rating-label:hover {
+                    transform: scale(1.1);
+                }
+
+                .star-rating-input:focus-visible + .star-rating-label {
+                    outline: 2px solid #198754;
+                    outline-offset: 3px;
+                    border-radius: .2rem;
+                }
+            </style>
         }
     </div>

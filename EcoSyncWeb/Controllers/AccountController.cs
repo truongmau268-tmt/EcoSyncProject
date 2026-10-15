@@ -28,8 +28,9 @@ namespace EcoSyncWeb.Controllers
         }
 
         // --- ĐĂNG NHẬP (GET) ---
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -168,8 +169,9 @@ namespace EcoSyncWeb.Controllers
 
         // --- ĐĂNG NHẬP (POST) ---
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ email và mật khẩu!";
@@ -199,6 +201,11 @@ namespace EcoSyncWeb.Controllers
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction("Index", "Project");
         }

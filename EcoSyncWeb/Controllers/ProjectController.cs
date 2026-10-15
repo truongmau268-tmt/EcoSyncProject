@@ -138,16 +138,37 @@ namespace EcoSyncWeb.Controllers
                 .OrderByDescending(f => f.CreatedAt)
                 .ToList();
 
-            // Kiểm tra xem user đang đăng nhập đã gửi đánh giá cho chiến dịch này chưa (dựa vào AuthorName)
             var currentUserName = User.Identity?.Name;
-            bool hasSubmittedFeedback = false;
-            if (!string.IsNullOrEmpty(currentUserName))
-            {
-                hasSubmittedFeedback = feedbacks.Any(f => f.AuthorName == currentUserName);
-            }
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
+            var registration = string.IsNullOrWhiteSpace(currentUserEmail)
+                ? null
+                : _context.ProjectRegistrations.FirstOrDefault(r =>
+                    r.ProjectId == id && r.Email == currentUserEmail);
 
-            ViewBag.Feedbacks = feedbacks;
+            var hasSubmittedFeedback = registration?.IsEvaluated == true ||
+                feedbacks.Any(f =>
+                    !string.IsNullOrWhiteSpace(currentUserEmail) && f.AuthorEmail == currentUserEmail ||
+                    f.AuthorEmail == null && !string.IsNullOrWhiteSpace(currentUserName) && f.AuthorName == currentUserName);
+            var canSubmitFeedback = User.Identity?.IsAuthenticated == true &&
+                project.EndTime <= DateTime.Now &&
+                registration?.Status == "Đã duyệt" &&
+                !hasSubmittedFeedback;
+
+            var feedbackEligibilityMessage = User.Identity?.IsAuthenticated != true
+                ? "Vui lòng đăng nhập để gửi đánh giá."
+                : project.EndTime > DateTime.Now
+                    ? "Bạn có thể đánh giá sau khi chiến dịch kết thúc."
+                    : registration == null || registration.Status != "Đã duyệt"
+                        ? "Chỉ tình nguyện viên có hồ sơ tham gia đã được duyệt mới có thể đánh giá chiến dịch này."
+                        : hasSubmittedFeedback
+                            ? "Bạn đã gửi đánh giá cho chiến dịch này."
+                            : string.Empty;
+
             ViewBag.HasSubmittedFeedback = hasSubmittedFeedback;
+            ViewBag.CanSubmitFeedback = canSubmitFeedback;
+            ViewBag.FeedbackEligibilityMessage = feedbackEligibilityMessage;
+            ViewBag.LoginReturnUrl = Url.Action("Details", "Project", new { id });
+            ViewBag.Feedbacks = feedbacks;
             return View(project);
         }
 
