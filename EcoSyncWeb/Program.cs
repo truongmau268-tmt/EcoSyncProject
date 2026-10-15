@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Kết nối Database SQLite
+// Kết nối Database SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Cấu hình Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -28,72 +28,15 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// --- TỰ ĐỘNG TẠO BẢNG & DATABASE NẾU CHƯA CÓ ---
+// --- TỰ ĐỘNG TẠO BẢNG & DATABASE NẾU CHƯA CÓ (DÙNG MIGRATIONS HOẶC ENSURECREATED) ---
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
+    
+    // Tự động áp dụng mọi Migration sang SQL Server hoặc tạo database mới
+    dbContext.Database.Migrate();
 
-    // EnsureCreated không cập nhật schema của DB cũ, nên cần tự bổ sung bảng/cột mới
-    EnsureNewTables(dbContext);
     SeedData(dbContext);
-}
-
-// Bổ sung bảng & cột mới cho database SQLite đã tồn tại từ trước (an toàn, bỏ qua nếu đã có)
-static void EnsureNewTables(ApplicationDbContext db)
-{
-    var ddl = new[]
-    {
-        @"CREATE TABLE IF NOT EXISTS ""AiChatLogs"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_AiChatLogs"" PRIMARY KEY AUTOINCREMENT,
-            ""UserEmail"" TEXT NOT NULL DEFAULT '',
-            ""Mode"" TEXT NOT NULL DEFAULT 'advice',
-            ""Message"" TEXT NOT NULL DEFAULT '',
-            ""Reply"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-        @"CREATE TABLE IF NOT EXISTS ""AiSummaries"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_AiSummaries"" PRIMARY KEY AUTOINCREMENT,
-            ""ProjectRegistrationId"" INTEGER NOT NULL DEFAULT 0,
-            ""VolunteerName"" TEXT NOT NULL DEFAULT '',
-            ""Strengths"" TEXT NOT NULL DEFAULT '',
-            ""Weaknesses"" TEXT NOT NULL DEFAULT '',
-            ""MatchPercent"" INTEGER NOT NULL DEFAULT 0,
-            ""Overall"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-        @"CREATE TABLE IF NOT EXISTS ""News"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_News"" PRIMARY KEY AUTOINCREMENT,
-            ""Title"" TEXT NOT NULL DEFAULT '',
-            ""Content"" TEXT NOT NULL DEFAULT '',
-            ""ImageUrl"" TEXT,
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )"
-    };
-    foreach (var sql in ddl)
-    {
-        db.Database.ExecuteSqlRaw(sql);
-    }
-
-    // ALTER TABLE chỉ chạy 1 lần; các lần sau lỗi "duplicate column" nên bỏ qua an toàn
-    var alters = new[]
-    {
-        "ALTER TABLE \"Users\" ADD COLUMN \"IsBlocked\" INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE \"Users\" ADD COLUMN \"Skills\" TEXT",
-        "ALTER TABLE \"Users\" ADD COLUMN \"Experience\" TEXT",
-        "ALTER TABLE \"Projects\" ADD COLUMN \"TargetVolunteers\" INTEGER",
-        "ALTER TABLE \"Projects\" ADD COLUMN \"ImageUrl\" TEXT",
-        "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"Status\" TEXT NOT NULL DEFAULT 'Chờ duyệt'",
-        "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"CertificateCode\" TEXT"
-    };
-    foreach (var sql in alters)
-    {
-        try { db.Database.ExecuteSqlRaw(sql); }
-        catch (Exception) { /* cột đã tồn tại */ }
-    }
-    db.SaveChanges();
 }
 
 // Seed tài khoản demo chuẩn (mật khẩu đã băm BCrypt) + tin tức mẫu
@@ -154,7 +97,7 @@ app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+ 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Project}/{action=Index}/{id?}");

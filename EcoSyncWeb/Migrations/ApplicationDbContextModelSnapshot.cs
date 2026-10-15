@@ -15,7 +15,81 @@ namespace EcoSyncWeb.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.20");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.32");
+
+            modelBuilder.Entity("EcoSyncWeb.Models.AiChatLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reply")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AiChatLogs");
+                });
+
+            modelBuilder.Entity("EcoSyncWeb.Models.AiSummary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MatchPercent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Overall")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectRegistrationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Strengths")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VolunteerName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Weaknesses")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AiSummaries");
+                });
 
             modelBuilder.Entity("EcoSyncWeb.Models.Feedback", b =>
                 {
@@ -49,6 +123,31 @@ namespace EcoSyncWeb.Migrations
                     b.ToTable("Feedbacks");
                 });
 
+            modelBuilder.Entity("EcoSyncWeb.Models.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("News");
+                });
+
             modelBuilder.Entity("EcoSyncWeb.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -59,16 +158,25 @@ namespace EcoSyncWeb.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("TargetVolunteers")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -85,6 +193,9 @@ namespace EcoSyncWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CertificateCode")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -92,6 +203,12 @@ namespace EcoSyncWeb.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCertified")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsEvaluated")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Note")
                         .IsRequired()
@@ -107,6 +224,10 @@ namespace EcoSyncWeb.Migrations
                     b.Property<DateTime>("RegisteredAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("ProjectRegistrations");
@@ -120,25 +241,30 @@ namespace EcoSyncWeb.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Experience")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Role")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Skills")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
