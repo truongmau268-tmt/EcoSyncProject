@@ -11,15 +11,15 @@ namespace EcoSyncWeb.Controllers
     public class ProjectController : Controller
     {
         private const long MaxProjectImageSize = 5 * 1024 * 1024;
-        private readonly IWebHostEnvironment _environment;
         private readonly ApplicationDbContext _context;
         private readonly IAiClient _ai;
+        private readonly AppStoragePaths _storagePaths;
 
-        public ProjectController(ApplicationDbContext context, IAiClient ai, IWebHostEnvironment environment)
+        public ProjectController(ApplicationDbContext context, IAiClient ai, AppStoragePaths storagePaths)
         {
             _context = context;
             _ai = ai;
-            _environment = environment;
+            _storagePaths = storagePaths;
         }
 
         // --- DANH SÁCH DỰ ÁN + PB08: TÌM KIẾM & LỌC + TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
@@ -30,6 +30,7 @@ namespace EcoSyncWeb.Controllers
                 _context.Projects.AddRange(
                     new Project {
                         Title = "Chiến dịch Clean Up Việt Nam lần 8",
+                        ImageUrl = "/uploads/projects/chiendich1.jpg",
                         Description = "Phối hợp cùng LCĐ khoa Khoa học Xã hội & Nhân văn, Đại học Duy Tân và Đồn Biên phòng Sơn Trà. Thu gom thành công 80 bao rác với sự tham gia của 110 tình nguyện viên.",
                         Location = "Xanh Đà Nẵng, Sơn Trà",
                         StartTime = new DateTime(2026, 9, 20, 8, 0, 0),
@@ -39,6 +40,7 @@ namespace EcoSyncWeb.Controllers
                     },
                     new Project {
                         Title = "Chiến dịch Earth Day Việt Nam 2026",
+                        ImageUrl = "/uploads/projects/chiendich2.jpg",
                         Description = "Hoạt động quy mô lớn với 800 tình nguyện viên, phối hợp cùng Đồn Biên phòng Hải Vân và nhiều cơ quan ban ngành, thu gom được 461 bịch rác nhằm lan tỏa tinh thần sống xanh.",
                         Location = "Đầu cầu Xanh, Đà Nẵng",
                         StartTime = new DateTime(2026, 4, 19, 7, 30, 0),
@@ -48,6 +50,7 @@ namespace EcoSyncWeb.Controllers
                     },
                     new Project {
                         Title = "Ra quân làm sạch Âu thuyền Thọ Quang",
+                        ImageUrl = "/uploads/projects/chiendich3.jpg",
                         Description = "Hoạt động thu gom rác thải nhựa trôi nổi và ven bờ tại khu vực Âu thuyền. Cần tuyển 50 bạn tình nguyện viên tham gia cùng Ban chấp hành Đoàn trường.",
                         Location = "Âu thuyền Thọ Quang, Sơn Trà",
                         StartTime = new DateTime(2026, 10, 25, 8, 0, 0),
@@ -57,6 +60,7 @@ namespace EcoSyncWeb.Controllers
                     },
                     new Project {
                         Title = "Đổi rác lấy quà - Khu vực Hòa Khánh",
+                        ImageUrl = "/uploads/projects/chiendich4.jpg",
                         Description = "Khuyến khích phân loại rác tại nguồn. Hỗ trợ người dân thu gom giấy, nhựa, kim loại để đổi lấy các nhu yếu phẩm xanh.",
                         Location = "Chợ Hòa Khánh, Liên Chiểu",
                         StartTime = new DateTime(2026, 11, 15, 7, 0, 0),
@@ -65,6 +69,29 @@ namespace EcoSyncWeb.Controllers
                         Status = "Sắp diễn ra"
                     }
                 );
+                _context.SaveChanges();
+            }
+
+            // Backfill ảnh mặc định cho database public cũ đã có project nhưng ImageUrl còn trống.
+            var defaultImages = new Dictionary<int, string>
+            {
+                [1] = "/uploads/projects/chiendich1.jpg",
+                [2] = "/uploads/projects/chiendich2.jpg",
+                [3] = "/uploads/projects/chiendich3.jpg",
+                [4] = "/uploads/projects/chiendich4.jpg"
+            };
+            var projectsToUpdate = _context.Projects
+                .Where(p => string.IsNullOrWhiteSpace(p.ImageUrl))
+                .ToList();
+            foreach (var project in projectsToUpdate)
+            {
+                if (defaultImages.TryGetValue(project.Id, out var imageUrl))
+                {
+                    project.ImageUrl = imageUrl;
+                }
+            }
+            if (projectsToUpdate.Any(p => !string.IsNullOrWhiteSpace(p.ImageUrl)))
+            {
                 _context.SaveChanges();
             }
 
@@ -684,10 +711,9 @@ namespace EcoSyncWeb.Controllers
         {
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
             var fileName = $"{Guid.NewGuid():N}{extension}";
-            var uploadDirectory = Path.Combine(_environment.WebRootPath, "uploads", "projects");
-            Directory.CreateDirectory(uploadDirectory);
+            Directory.CreateDirectory(_storagePaths.ProjectImagesDirectory);
 
-            var filePath = Path.Combine(uploadDirectory, fileName);
+            var filePath = Path.Combine(_storagePaths.ProjectImagesDirectory, fileName);
             await using var stream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
             await image.CopyToAsync(stream);
 
@@ -708,7 +734,7 @@ namespace EcoSyncWeb.Controllers
                 return;
             }
 
-            var filePath = Path.Combine(_environment.WebRootPath, "uploads", "projects", fileName);
+            var filePath = Path.Combine(_storagePaths.ProjectImagesDirectory, fileName);
             if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
         }
     }

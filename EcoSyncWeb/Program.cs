@@ -3,12 +3,29 @@ using EcoSyncWeb.Data;
 using EcoSyncWeb.Models;
 using EcoSyncWeb.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Kết nối Database SQLite
+// Chỉ ghi log ra console để EF CLI không cố ghi Windows Event Log khi chạy migration.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+var configuredDataDirectory = builder.Configuration["EcoSync:DataDirectory"];
+var dataDirectory = string.IsNullOrWhiteSpace(configuredDataDirectory)
+    ? null
+    : Path.GetFullPath(configuredDataDirectory, builder.Environment.ContentRootPath);
+var storagePaths = new AppStoragePaths(dataDirectory, builder.Environment.WebRootPath);
+builder.Services.AddSingleton(storagePaths);
+
+// Kết nối MySQL trên VPS. Render có thể ghi đè bằng ConnectionStrings__DefaultConnection.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:DefaultConnection.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(
+        connectionString,
+        ServerVersion.Parse("9.7.2-mysql"),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
 
 // Cấu hình Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -25,78 +42,16 @@ builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
+
+Directory.CreateDirectory(storagePaths.ProjectImagesDirectory);
+
 // --- TỰ ĐỘNG TẠO BẢNG & DATABASE NẾU CHƯA CÓ ---
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
-
-    // EnsureCreated không cập nhật schema của DB cũ, nên cần tự bổ sung bảng/cột mới
-    EnsureNewTables(dbContext);
+    dbContext.Database.Migrate();
     SeedData(dbContext);
 }
-// Bổ sung bảng & cột mới cho database SQLite đã tồn tại từ trước (an toàn, bỏ qua nếu đã có)
-static void EnsureNewTables(ApplicationDbContext db)
-{
-    var ddl = new[]
-    {
-        @"CREATE TABLE IF NOT EXISTS ""AiChatLogs"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_AiChatLogs"" PRIMARY KEY AUTOINCREMENT,
-            ""UserEmail"" TEXT NOT NULL DEFAULT '',
-            ""Mode"" TEXT NOT NULL DEFAULT 'advice',
-            ""Message"" TEXT NOT NULL DEFAULT '',
-            ""Reply"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-        @"CREATE TABLE IF NOT EXISTS ""AiSummaries"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_AiSummaries"" PRIMARY KEY AUTOINCREMENT,
-            ""ProjectRegistrationId"" INTEGER NOT NULL DEFAULT 0,
-            ""VolunteerName"" TEXT NOT NULL DEFAULT '',
-            ""Strengths"" TEXT NOT NULL DEFAULT '',
-            ""Weaknesses"" TEXT NOT NULL DEFAULT '',
-            ""MatchPercent"" INTEGER NOT NULL DEFAULT 0,
-            ""Overall"" TEXT NOT NULL DEFAULT '',
-            ""Source"" TEXT NOT NULL DEFAULT 'Groq',
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )",
-        @"CREATE TABLE IF NOT EXISTS ""News"" (
-            ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_News"" PRIMARY KEY AUTOINCREMENT,
-            ""Title"" TEXT NOT NULL DEFAULT '',
-            ""Content"" TEXT NOT NULL DEFAULT '',
-            ""ImageUrl"" TEXT,
-            ""CreatedAt"" TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-        )"
-    };
-    foreach (var sql in ddl)
-    {
-        db.Database.ExecuteSqlRaw(sql);
-    }
-
-    // ALTER TABLE chỉ chạy 1 lần; các lần sau lỗi "duplicate column" nên bỏ qua an toàn
-    var alters = new[]
-    {
-        "ALTER TABLE \"Users\" ADD COLUMN \"IsBlocked\" INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE \"Users\" ADD COLUMN \"Skills\" TEXT",
-        "ALTER TABLE \"Users\" ADD COLUMN \"Experience\" TEXT",
-        "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenHash\" TEXT",
-        "ALTER TABLE \"Users\" ADD COLUMN \"PasswordResetTokenExpiresAt\" TEXT",
-        "ALTER TABLE \"Feedbacks\" ADD COLUMN \"AuthorEmail\" TEXT",
-        "ALTER TABLE \"Projects\" ADD COLUMN \"TargetVolunteers\" INTEGER",
-        "ALTER TABLE \"Projects\" ADD COLUMN \"ImageUrl\" TEXT",
-        "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"Status\" TEXT NOT NULL DEFAULT 'Chờ duyệt'",
-        "ALTER TABLE \"ProjectRegistrations\" ADD COLUMN \"CertificateCode\" TEXT"
-    };
-    foreach (var sql in alters)
-    {
-        try { db.Database.ExecuteSqlRaw(sql); }
-        catch (Exception) { /* cột đã tồn tại */ }
-    }
-    db.Database.ExecuteSqlRaw(
-        "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Feedbacks_ProjectId_AuthorEmail\" ON \"Feedbacks\" (\"ProjectId\", \"AuthorEmail\")");
-    db.SaveChanges();
-}
-
 // Seed tài khoản demo chuẩn (mật khẩu đã băm BCrypt) + tin tức mẫu
 static void SeedData(ApplicationDbContext db)
 {
@@ -148,6 +103,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+if (storagePaths.PersistentUploadsDirectory is { } persistentUploadsDirectory)
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(persistentUploadsDirectory),
+        RequestPath = "/uploads"
+    });
+}
 
 app.UseRouting();
 
