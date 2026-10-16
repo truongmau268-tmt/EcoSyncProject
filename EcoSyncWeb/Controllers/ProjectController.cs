@@ -100,7 +100,11 @@ namespace EcoSyncWeb.Controllers
             // LOGIC AUTO: Tự động cập nhật trạng thái theo giờ thực tế (DateTime.Now)
             foreach (var p in projects)
             {
-                if (DateTime.Now >= p.EndTime)
+                if (p.IsManuallyEnded)
+                {
+                    p.Status = "Đã kết thúc";
+                }
+                else if (DateTime.Now >= p.EndTime)
                 {
                     p.Status = "Đã kết thúc";
                 }
@@ -146,7 +150,11 @@ namespace EcoSyncWeb.Controllers
             var project = _context.Projects.FirstOrDefault(p => p.Id == id);
             if (project == null) return RedirectToAction("Index");
 
-            if (DateTime.Now >= project.EndTime)
+            if (project.IsManuallyEnded)
+            {
+                project.Status = "Đã kết thúc";
+            }
+            else if (DateTime.Now >= project.EndTime)
             {
                 project.Status = "Đã kết thúc";
             }
@@ -597,6 +605,7 @@ namespace EcoSyncWeb.Controllers
             var project = _context.Projects.FirstOrDefault(p => p.Id == id);
             if (project == null) return RedirectToAction("Index");
 
+            project.Status = ComputeStatus(project);
             return View(project);
         }
 
@@ -646,9 +655,34 @@ namespace EcoSyncWeb.Controllers
 
         private static string ComputeStatus(Project project)
         {
+            if (project.IsManuallyEnded)
+            {
+                return "Đã kết thúc";
+            }
+
             if (DateTime.Now >= project.EndTime) return "Đã kết thúc";
             if (DateTime.Now >= project.StartTime) return "Đang diễn ra";
             return "Sắp diễn ra";
+        }
+
+        // --- KẾT THÚC CHIẾN DỊCH THỦ CÔNG (ADMIN) ---
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult End(int id)
+        {
+            var userRole = User.FindFirstValue(ClaimTypes.Role);
+            if (userRole != "Admin") return RedirectToAction("Index");
+
+            var project = _context.Projects.FirstOrDefault(p => p.Id == id);
+            if (project == null) return RedirectToAction("Index");
+
+            project.IsManuallyEnded = true;
+            project.Status = "Đã kết thúc";
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Đã kết thúc chiến dịch thành công!";
+            return RedirectToAction("Index");
         }
 
         // --- XÓA CHIẾN DỊCH (PB07: chặn xóa khi đã có CTV đăng ký) ---

@@ -182,6 +182,9 @@ namespace EcoSyncWeb.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("IsManuallyEnded")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("longtext");
 

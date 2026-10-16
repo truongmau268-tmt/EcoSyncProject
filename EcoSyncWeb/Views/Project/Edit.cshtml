@@ -60,6 +60,23 @@
                         <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold text-white shadow-sm">💾 Lưu Thay Đổi</button>
                     </div>
                 </form>
+
+                @if (Model.Status == "Đã kết thúc")
+                {
+                    <div class="alert alert-secondary mt-4 mb-0 rounded-4">
+                        Chiến dịch này đã kết thúc và không thể mở lại bằng nút kết thúc thủ công.
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="End" method="post" class="mt-4"
+                          onsubmit="return confirm('Bạn có chắc muốn kết thúc chiến dịch này ngay bây giờ không?');">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold w-100">
+                            ⏹ Kết thúc chiến dịch ngay
+                        </button>
+                    </form>
+                }
             </div>
         </div>
     </div>

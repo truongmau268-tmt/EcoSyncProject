@@ -3,9 +3,7 @@
     `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
     CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
 ) CHARACTER SET=utf8mb4;
-
 ALTER DATABASE CHARACTER SET utf8mb4;
-
 CREATE TABLE `AiChatLogs` (
     `Id` int NOT NULL AUTO_INCREMENT,
     `UserEmail` longtext CHARACTER SET utf8mb4 NOT NULL,
@@ -76,6 +74,7 @@ CREATE TABLE `Projects` (
     `Location` longtext CHARACTER SET utf8mb4 NOT NULL,
     `TargetVolunteers` int NULL,
     `Status` longtext CHARACTER SET utf8mb4 NOT NULL,
+    `IsManuallyEnded` tinyint(1) NOT NULL DEFAULT 0,
     CONSTRAINT `PK_Projects` PRIMARY KEY (`Id`)
 ) CHARACTER SET=utf8mb4;
 
@@ -98,3 +97,5 @@ CREATE UNIQUE INDEX `IX_Feedbacks_ProjectId_AuthorEmail` ON `Feedbacks` (`Projec
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20261015124730_InitialMySql', '8.0.32');
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20261016130000_AddManualEndToProjects', '8.0.32');
