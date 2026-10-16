@@ -34,9 +34,5 @@ namespace EcoSyncWeb.Models
         public int? TargetVolunteers { get; set; } // Chỉ tiêu số lượng tình nguyện viên (PB07)
 
         public string Status { get; set; } = "Sắp diễn ra"; // Trạng thái: Sắp diễn ra, Đang diễn ra, Đã kết thúc
-
-        // Khi Admin kết thúc thủ công, chiến dịch giữ trạng thái "Đã kết thúc"
-        // và không bị logic tự động theo thời gian ghi đè lại.
-        public bool IsManuallyEnded { get; set; }
     }
 }

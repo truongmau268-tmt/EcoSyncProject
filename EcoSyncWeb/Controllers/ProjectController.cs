@@ -100,11 +100,12 @@ namespace EcoSyncWeb.Controllers
             // LOGIC AUTO: Tự động cập nhật trạng thái theo giờ thực tế (DateTime.Now)
             foreach (var p in projects)
             {
-                if (p.IsManuallyEnded)
+                if (p.Status == "Đã kết thúc")
                 {
-                    p.Status = "Đã kết thúc";
+                    continue;
                 }
-                else if (DateTime.Now >= p.EndTime)
+
+                if (DateTime.Now >= p.EndTime)
                 {
                     p.Status = "Đã kết thúc";
                 }
@@ -150,9 +151,9 @@ namespace EcoSyncWeb.Controllers
             var project = _context.Projects.FirstOrDefault(p => p.Id == id);
             if (project == null) return RedirectToAction("Index");
 
-            if (project.IsManuallyEnded)
+            if (project.Status == "Đã kết thúc")
             {
-                project.Status = "Đã kết thúc";
+                // Giữ trạng thái kết thúc thủ công hoặc đã kết thúc trước đó.
             }
             else if (DateTime.Now >= project.EndTime)
             {
@@ -655,7 +656,7 @@ namespace EcoSyncWeb.Controllers
 
         private static string ComputeStatus(Project project)
         {
-            if (project.IsManuallyEnded)
+            if (project.Status == "Đã kết thúc")
             {
                 return "Đã kết thúc";
             }
@@ -677,7 +678,6 @@ namespace EcoSyncWeb.Controllers
             var project = _context.Projects.FirstOrDefault(p => p.Id == id);
             if (project == null) return RedirectToAction("Index");
 
-            project.IsManuallyEnded = true;
             project.Status = "Đã kết thúc";
             _context.SaveChanges();
 
