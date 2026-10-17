@@ -1,83 +1,190 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang chủ";
 }
 
-<!-- CSS Tùy chỉnh cho các hiệu ứng -->
 <style>
-    .hero-section {
-        background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
-        border-left: 6px solid #198754; /* Xanh lá đậm */
+    .landing-hero {
+        background: linear-gradient(135deg, #064e3b 0%, #059669 55%, #0d9488 100%);
+        border-radius: 2rem;
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+        box-shadow: 0 24px 48px -12px rgba(6, 78, 59, 0.25);
     }
-    .feature-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-top: 4px solid transparent;
+    .landing-hero::before {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        background: radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 70%);
+        top: -120px;
+        right: -80px;
+        border-radius: 50%;
     }
-    .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        border-top: 4px solid #198754;
+    .hero-glass-card {
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        animation: floatSlow 5s ease-in-out infinite;
     }
-    .icon-wrapper {
-        width: 60px;
-        height: 60px;
+    .step-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: var(--eco-gradient);
+        color: #fff;
+        font-weight: 800;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        margin-bottom: 1rem;
+        box-shadow: 0 6px 14px rgba(16, 185, 129, 0.3);
     }
 </style>
 
 <!-- Phần Banner giới thiệu (Hero Section) -->
-<div class="p-5 mb-5 rounded-4 shadow-sm hero-section mt-3">
-    <div class="container-fluid py-4">
-        <h1 class="display-5 fw-bolder text-success mb-3">EcoSync AI</h1>
-        <p class="col-md-9 fs-5 text-secondary mb-4" style="line-height: 1.6;">
-            Website quản lý dự án cộng đồng thông minh và minh bạch. 
-            Kết nối những trái tim nhiệt huyết, tích hợp AI Chatbot hỗ trợ tư vấn và thuật toán phân tích phản hồi tự động để tối ưu hóa mọi chiến dịch.
-        </p>
-        <div class="d-flex gap-3">
-            <a href="#" class="btn btn-success btn-lg px-4 shadow-sm fw-bold">Khám phá dự án</a>
-            @if (!(User.Identity != null && User.Identity.IsAuthenticated))
-            {
-                <a href="/Account/Register" class="btn btn-danger btn-lg px-4 shadow-sm fw-bold">Tham gia ngay</a>
-            }
+<div class="p-4 p-md-5 mb-5 mt-3 landing-hero animate-fade-up">
+    <div class="row align-items-center gy-4 py-2">
+        <div class="col-lg-7">
+            <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-20 px-3 py-1 rounded-pill small fw-bold mb-3">
+                <span>🌱 Nền tảng Tình nguyện &amp; Môi trường Đà Nẵng</span>
+            </div>
+            <h1 class="display-4 fw-extrabold mb-3" style="letter-spacing: -0.02em; line-height: 1.15;">
+                Kết Nối Trái Tim Xanh Cùng <span class="text-warning">EcoSync AI</span>
+            </h1>
+            <p class="fs-5 text-white text-opacity-90 mb-4" style="line-height: 1.7;">
+                Nền tảng quản lý dự án cộng đồng thông minh và minh bạch. Tích hợp <strong>AI Phỏng vấn sơ loại</strong>, <strong>Trợ lý tư vấn 24/7</strong> và <strong>Phân tích cảm xúc tự động</strong> để tối ưu hóa mọi chiến dịch.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Project" asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold text-success shadow">
+                    🚀 Khám phá dự án ngay
+                </a>
+                @if (!(User.Identity != null && User.Identity.IsAuthenticated))
+                {
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold text-dark shadow">
+                        ✨ Đăng ký tình nguyện viên
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Project" asp-action="MyRegistrations" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">
+                        📋 Chiến dịch của tôi
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="hero-glass-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="bg-white text-success rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 54px; height: 54px; font-size: 1.75rem;">
+                        🤖
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0 text-white">Hệ sinh thái EcoSync AI</h5>
+                        <span class="small text-white text-opacity-75">Tự động hóa quy trình tình nguyện</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <div class="bg-white bg-opacity-15 rounded-3 p-3 d-flex align-items-center gap-3">
+                        <span class="fs-4">🎤</span>
+                        <div class="small">
+                            <div class="fw-bold">Phỏng vấn AI tự động</div>
+                            <div class="text-white text-opacity-75">Đánh giá độ phù hợp ứng viên theo thời gian thực</div>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-15 rounded-3 p-3 d-flex align-items-center gap-3">
+                        <span class="fs-4">📊</span>
+                        <div class="small">
+                            <div class="fw-bold">Phân tích cảm xúc phản hồi</div>
+                            <div class="text-white text-opacity-75">Tự động tổng hợp điểm mạnh &amp; điểm cần cải thiện</div>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-15 rounded-3 p-3 d-flex align-items-center gap-3">
+                        <span class="fs-4">🏆</span>
+                        <div class="small">
+                            <div class="fw-bold">Giấy chứng nhận điện tử</div>
+                            <div class="text-white text-opacity-75">Cấp mã xác thực định danh chuẩn A4 cho TNV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Phần tính năng nổi bật (Features) -->
-<div class="row g-4 mb-5">
-    <!-- Tính năng 1 -->
+<div class="text-center mb-4 animate-fade-up delay-1">
+    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold mb-2">GIÁ TRỊ CỐT LÕI</span>
+    <h2 class="fw-bold text-dark">Tại sao chọn EcoSync?</h2>
+    <p class="text-muted">Giải pháp toàn diện cho Ban tổ chức và Tình nguyện viên</p>
+</div>
+
+<div class="row g-4 mb-5 animate-fade-up delay-2">
     <div class="col-md-4">
-        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
-            <div class="icon-wrapper bg-success bg-opacity-10 text-success fs-2">
-                👥 <!-- Bạn có thể thay bằng icon Bootstrap sau -->
+        <div class="card h-100 p-4 bg-white rounded-4 eco-card-hover">
+            <div class="eco-kpi-icon bg-success bg-opacity-10 text-success mb-3">
+                👥
             </div>
-            <h4 class="fw-bold text-dark">Kết nối cộng đồng</h4>
-            <p class="text-muted mt-2">Dễ dàng tham gia các hoạt động tình nguyện, chiến dịch môi trường. Cùng nhau xây dựng một mạng lưới xã hội lan tỏa giá trị tích cực.</p>
+            <h4 class="fw-bold text-dark">Kết nối cộng đồng xanh</h4>
+            <p class="text-muted mt-2 mb-0" style="line-height: 1.65;">
+                Dễ dàng tìm kiếm và đăng ký các hoạt động tình nguyện, làm sạch bãi biển, trồng cây rừng tại Đà Nẵng. Cùng nhau lan tỏa giá trị tích cực.
+            </p>
         </div>
     </div>
 
-    <!-- Tính năng 2 -->
     <div class="col-md-4">
-        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
-            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger fs-2">
+        <div class="card h-100 p-4 bg-white rounded-4 eco-card-hover">
+            <div class="eco-kpi-icon bg-primary bg-opacity-10 text-primary mb-3">
                 🤖
             </div>
-            <h4 class="fw-bold text-dark">AI Chatbot & Phân tích</h4>
-            <p class="text-muted mt-2">Trợ lý AI luôn sẵn sàng hỗ trợ, giải đáp thắc mắc và tự động đo lường, phân tích phản hồi từ người tham gia chiến dịch theo thời gian thực.</p>
+            <h4 class="fw-bold text-dark">AI Chatbot &amp; Phỏng vấn</h4>
+            <p class="text-muted mt-2 mb-0" style="line-height: 1.65;">
+                Trợ lý AI Groq tư vấn chiến dịch phù hợp và thực hiện phỏng vấn sơ loại 5 câu hỏi, tự động chấm độ phù hợp giúp Admin duyệt hồ sơ nhanh chóng.
+            </p>
         </div>
     </div>
 
-    <!-- Tính năng 3 -->
     <div class="col-md-4">
-        <div class="h-100 p-4 bg-white border rounded-4 shadow-sm feature-card">
-            <div class="icon-wrapper bg-success bg-opacity-10 text-success fs-2">
-                📊
+        <div class="card h-100 p-4 bg-white rounded-4 eco-card-hover">
+            <div class="eco-kpi-icon bg-warning bg-opacity-15 text-warning mb-3">
+                🏆
             </div>
-            <h4 class="fw-bold text-dark">Quản lý trực quan</h4>
-            <p class="text-muted mt-2">Lên kế hoạch, theo dõi tiến độ chi tiết của từng dự án ngay trên giao diện web. Đảm bảo tính minh bạch và hiệu quả công việc tối đa.</p>
+            <h4 class="fw-bold text-dark">Chứng nhận &amp; Minh bạch</h4>
+            <p class="text-muted mt-2 mb-0" style="line-height: 1.65;">
+                Theo dõi trạng thái hồ sơ trực quan, gửi đánh giá sau chiến dịch và nhận Giấy chứng nhận điện tử có mã xác thực riêng biệt, sẵn sàng in ấn.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Quy trình 4 bước tham gia -->
+<div class="card border-0 rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4 animate-fade-up delay-3">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-dark mb-1">🌿 Hành trình Tình nguyện viên chỉ với 4 bước</h3>
+        <p class="text-muted small mb-0">Quy trình khép kín, nhanh gọn và hiện đại</p>
+    </div>
+    <div class="row g-4 text-center">
+        <div class="col-6 col-md-3">
+            <div class="step-badge mb-3">1</div>
+            <h6 class="fw-bold text-dark">Chọn chiến dịch</h6>
+            <p class="text-muted small mb-0">Tìm dự án phù hợp theo địa điểm và thời gian tại Đà Nẵng.</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="step-badge mb-3">2</div>
+            <h6 class="fw-bold text-dark">Phỏng vấn cùng AI</h6>
+            <p class="text-muted small mb-0">Trả lời 5 câu hỏi ngắn với AI để nâng cao tỷ lệ trúng tuyển.</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="step-badge mb-3">3</div>
+            <h6 class="fw-bold text-dark">Tham gia &amp; Đánh giá</h6>
+            <p class="text-muted small mb-0">Hoàn thành hoạt động thực tế và gửi phản hồi đóng góp.</p>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="step-badge mb-3">4</div>
+            <h6 class="fw-bold text-dark">Nhận GCN điện tử</h6>
+            <p class="text-muted small mb-0">Tải hoặc in Giấy chứng nhận vinh danh từ Ban tổ chức.</p>
         </div>
     </div>
 </div>

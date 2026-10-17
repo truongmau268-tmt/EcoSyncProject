@@ -11,21 +11,31 @@
     };
 }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container mt-3 mb-5 animate-fade-up">
+    <div class="eco-page-header mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <h2 class="fw-bold text-success mb-1">Chiến dịch của tôi</h2>
-            <p class="text-muted mb-0">Theo dõi tiến độ hồ sơ ứng tuyển: Chờ duyệt → Đã duyệt → hoàn thành & nhận giấy chứng nhận.</p>
+            <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+                📌 Hành trình tình nguyện của bạn
+            </span>
+            <h2 class="fw-extrabold mb-1">📋 Chiến Dịch Của Tôi</h2>
+            <p class="mb-0 text-white text-opacity-80 small">
+                Theo dõi tiến độ hồ sơ ứng tuyển: Chờ duyệt → Đã duyệt → Đánh giá → Nhận Giấy chứng nhận.
+            </p>
         </div>
-        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">⬅ Xem tất cả chiến dịch</a>
+        <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold text-success shadow-sm flex-shrink-0">
+            ⬅ Xem tất cả chiến dịch
+        </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5 bg-white rounded-4 shadow-sm border p-5">
-            <h4 class="text-muted mb-3">Bạn chưa đăng ký tham gia chiến dịch nào cả!</h4>
-            <p class="text-muted mb-4">Hãy khám phá các chiến dịch môi trường sắp diễn ra và chung tay cùng cộng đồng nhé.</p>
-            <a asp-action="Index" class="btn btn-danger fw-bold rounded-pill px-5 shadow-sm">Khám phá chiến dịch ngay</a>
+        <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white">
+            <div class="fs-1 mb-2">🌱</div>
+            <h4 class="fw-bold text-dark mb-2">Bạn chưa đăng ký tham gia chiến dịch nào!</h4>
+            <p class="text-muted mb-4">Hãy khám phá các chiến dịch môi trường sắp diễn ra và chung tay cùng cộng đồng Đà Nẵng nhé.</p>
+            <div>
+                <a asp-action="Index" class="btn btn-success btn-lg fw-bold rounded-pill px-5 shadow-sm">🚀 Khám phá chiến dịch ngay</a>
+            </div>
         </div>
     }
     else
@@ -34,13 +44,18 @@
             @foreach (var item in Model)
             {
                 var regInfo = registrations?.FirstOrDefault(r => r.ProjectId == item.Id);
+                var isApproved = regInfo?.Status == "Đã duyệt";
+                var isRejected = regInfo?.Status == "Đã loại";
+                var isEvaluated = regInfo?.IsEvaluated == true;
+                var isCertified = regInfo?.IsCertified == true;
+
                 <div class="col-md-6">
-                    <div class="card h-100 shadow-sm border-0 rounded-4" style="border-top: 4px solid #198754 !important;">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 bg-white eco-card-hover" style="border-top: 4px solid #10b981 !important;">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
                                 @if (regInfo != null)
                                 {
-                                    <span class="badge @StatusBadge(regInfo.Status) px-3 py-2 rounded-pill">
+                                    <span class="badge @StatusBadge(regInfo.Status) px-3 py-2 rounded-pill shadow-sm">
                                         📌 @(regInfo.Status)
                                     </span>
                                 }
@@ -48,39 +63,62 @@
                                 {
                                     <span class="badge bg-success px-3 py-2 rounded-pill">Đã đăng ký tham gia</span>
                                 }
-                                <span class="text-muted small"><strong class="text-dark">📅 Ngày diễn ra:</strong> @item.StartDate.ToString("dd/MM/yyyy")</span>
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                                    📅 @item.StartDate.ToString("dd/MM/yyyy")
+                                </span>
                             </div>
 
-                            <h4 class="card-title fw-bold text-dark mt-3">@item.Title</h4>
-                            <p class="card-text text-muted mt-2" style="line-height: 1.6;">
-                                @item.Description
-                            </p>
+                            <!-- Thanh tiến trình 4 bước -->
+                            @if (regInfo != null && !isRejected)
+                            {
+                                <div class="eco-stepper mb-3">
+                                    <div class="eco-step done">1. Đã nộp đơn</div>
+                                    <div class="eco-step @(isApproved ? "done" : "current")">2. @(isApproved ? "Đã duyệt" : "Chờ duyệt")</div>
+                                    <div class="eco-step @(isEvaluated ? "done" : (isApproved && item.Status == "Đã kết thúc" ? "current" : ""))">3. Khảo sát</div>
+                                    <div class="eco-step @(isCertified ? "done" : "")">4. Cấp GCN</div>
+                                </div>
+                            }
 
+                            <h4 class="card-title fw-bold text-dark mb-2">@item.Title</h4>
                             <p class="mb-2 text-secondary small">
-                                <strong class="text-danger">📍 Địa điểm:</strong> @item.Location
+                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1">📍 @item.Location</span>
+                            </p>
+                            <p class="card-text text-muted small flex-grow-1" style="line-height: 1.65;">
+                                @item.Description
                             </p>
 
                             @if (regInfo != null)
                             {
-                                <div class="bg-light p-3 rounded-3 mt-3 small text-muted">
-                                    <div class="fw-bold text-dark mb-1">📝 Thông tin bạn đã đăng ký:</div>
-                                    <div>- Họ tên: <strong>@regInfo.FullName</strong></div>
-                                    <div>- SĐT: <strong>@regInfo.Phone</strong></div>
-                                    <div>- Thời gian đăng ký: @regInfo.RegisteredAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div class="p-3 rounded-4 mt-3 small border" style="background: #f8fafc;">
+                                    <div class="fw-bold text-dark mb-1">📝 Hồ sơ đăng ký của bạn:</div>
+                                    <div class="text-secondary">👤 Họ tên: <strong class="text-dark">@regInfo.FullName</strong> · 📞 <strong class="text-dark">@regInfo.Phone</strong></div>
+                                    <div class="text-muted" style="font-size: 0.78rem;">🕒 Nộp lúc: @regInfo.RegisteredAt.ToString("dd/MM/yyyy HH:mm")</div>
+
                                     @if (regInfo.IsCertified)
                                     {
-                                        <div class="mt-2">
-                                            <span class="badge bg-success px-3 py-2 rounded-pill">🏆 Đã cấp Giấy chứng nhận @(string.IsNullOrWhiteSpace(regInfo.CertificateCode) ? "" : "- Mã " + regInfo.CertificateCode)</span>
-                                            <a asp-action="Certificate" asp-route-projectId="@item.Id" class="btn btn-success btn-sm rounded-pill px-3 fw-bold ms-1">Xem GCN</a>
+                                        <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                                🏆 Đã cấp GCN @(string.IsNullOrWhiteSpace(regInfo.CertificateCode) ? "" : "- Mã " + regInfo.CertificateCode)
+                                            </span>
+                                            <a asp-action="Certificate" asp-route-projectId="@item.Id" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                                                📜 Xem GCN
+                                            </a>
                                         </div>
                                     }
                                     else if (regInfo.IsEvaluated)
                                     {
-                                        <div class="mt-2 text-success">✅ Đã hoàn thành khảo sát — đang chờ Ban tổ chức cấp Giấy chứng nhận.</div>
+                                        <div class="mt-2 pt-2 border-top text-success fw-semibold">
+                                            ✅ Đã hoàn thành khảo sát — đang chờ Ban tổ chức cấp Giấy chứng nhận.
+                                        </div>
                                     }
                                     else if (item.Status == "Đã kết thúc" && regInfo.Status == "Đã duyệt")
                                     {
-                                        <div class="mt-2 text-warning">⏳ Chiến dịch đã kết thúc — hãy gửi đánh giá ở trang chi tiết để nhận Giấy chứng nhận!</div>
+                                        <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <span class="text-warning fw-semibold">⏳ Chiến dịch đã kết thúc — hãy gửi đánh giá để nhận GCN!</span>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark">
+                                                ⭐ Đánh giá ngay
+                                            </a>
+                                        </div>
                                     }
                                 </div>
                             }

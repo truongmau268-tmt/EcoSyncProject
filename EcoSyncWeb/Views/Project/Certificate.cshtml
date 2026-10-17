@@ -4,43 +4,54 @@
     var registration = ViewBag.Registration as EcoSyncWeb.Models.ProjectRegistration;
 }
 
-<div class="container my-3">
+<div class="container my-3 animate-fade-up">
     <!-- Nút điều khiển (ẩn đi khi in) -->
-    <div class="text-center mb-3 no-print">
-        <a asp-action="MyCertificates" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Quay lại danh sách GCN</a>
-        <button onclick="window.print();" class="btn btn-success rounded-pill px-4 fw-bold ms-2 shadow-sm">🖨️ In / Lưu Giấy Chứng Nhận</button>
+    <div class="d-flex justify-content-center gap-2 mb-4 no-print">
+        <a asp-action="MyCertificates" class="btn btn-white bg-white border rounded-pill px-4 fw-bold text-secondary shadow-sm">
+            ⬅ Quay lại danh sách GCN
+        </a>
+        <button onclick="window.print();" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+            🖨️ In / Lưu PDF Giấy Chứng Nhận
+        </button>
     </div>
 
-    <!-- Khung Giấy Chứng Nhận Chuẩn A4 Ngang (Thu gọn vừa vặn) -->
+    <!-- Khung Giấy Chứng Nhận Chuẩn A4 Ngang -->
     <div class="certificate-container mx-auto bg-white position-relative shadow-lg rounded-4 overflow-hidden">
-        
         <!-- Viền trang trí bên trong -->
-        <div class="certificate-border">
-            
-            <div class="text-center pt-3">
-                <div class="text-success" style="font-size: 18px;">🌿 ✦ 🌿</div>
-                <h6 class="text-uppercase fw-bold text-secondary mb-0" style="letter-spacing: 2px; font-size: 11px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h6>
-                <p class="fw-bold text-dark small mb-2" style="font-size: 10px;">Độc lập - Tự do - Hạnh phúc</p>
+        <div class="certificate-border d-flex flex-column justify-content-between p-4">
+
+            <div class="text-center pt-1">
+                <div class="text-success fw-bold" style="font-size: 18px; letter-spacing: 6px;">🌿 ✦ 🏆 ✦ 🌿</div>
+                <h6 class="text-uppercase fw-bold text-secondary mb-0 mt-1" style="letter-spacing: 2px; font-size: 11px;">
+                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+                </h6>
+                <p class="fw-bold text-dark small mb-2" style="font-size: 10.5px;">Độc lập - Tự do - Hạnh phúc</p>
             </div>
 
-            <div class="px-4 text-center">
-                <h2 class="text-uppercase fw-bold text-success mb-0" style="letter-spacing: 3px; font-size: 26px;">GIẤY CHỨNG NHẬN</h2>
-                <p class="text-uppercase fw-semibold text-muted mb-2" style="font-size: 10px; letter-spacing: 1px;">Chứng nhận hoàn thành chiến dịch tình nguyện cộng đồng</p>
-                
-                <p class="text-secondary mb-1 fst-italic" style="font-size: 12px;">Ban tổ chức nền tảng EcoSync trân trọng vinh danh và chứng nhận:</p>
-                
-                <h3 class="fw-bold text-dark my-1 py-1 px-4 d-inline-block border-bottom border-success border-2 text-uppercase" style="font-size: 22px; color: #198754 !important;">
+            <div class="px-3 px-md-4 text-center my-auto">
+                <h2 class="text-uppercase fw-extrabold text-success mb-0" style="letter-spacing: 4px; font-size: 28px;">
+                    GIẤY CHỨNG NHẬN
+                </h2>
+                <p class="text-uppercase fw-semibold text-muted mb-2" style="font-size: 10px; letter-spacing: 1.5px;">
+                    CERTIFICATE OF VOLUNTEER EXCELLENCE · ECOSYNC ĐÀ NẴNG
+                </p>
+
+                <p class="text-secondary mb-1 fst-italic" style="font-size: 12.5px;">
+                    Ban tổ chức nền tảng EcoSync trân trọng vinh danh và chứng nhận:
+                </p>
+
+                <h3 class="fw-extrabold my-2 py-1 px-4 d-inline-block border-bottom border-success border-2 text-uppercase" style="font-size: 24px; color: #059669 !important; letter-spacing: 1px;">
                     @(registration?.FullName ?? User.Identity?.Name)
                 </h3>
 
-                <p class="text-secondary mt-1 mb-2 px-3" style="font-size: 12px; line-height: 1.5;">
+                <p class="text-secondary mt-1 mb-2 px-3" style="font-size: 12.5px; line-height: 1.55;">
                     Đã tích cực tham gia, cống hiến sức trẻ và hoàn thành xuất sắc các nhiệm vụ trong chiến dịch:
                     <br />
-                    <strong class="text-success fs-6">@Model.Title</strong>
+                    <strong class="text-success fs-5">@Model.Title</strong>
                 </p>
 
                 <!-- Thông tin chi tiết chiến dịch -->
-                <div class="row justify-content-center text-start bg-light rounded-3 py-1 px-2 mx-auto border mb-2" style="max-width: 580px; font-size: 11px;">
+                <div class="row justify-content-center text-start rounded-3 py-2 px-3 mx-auto border mb-2" style="max-width: 600px; font-size: 11.5px; background: #f4fbf7;">
                     <div class="col-6">
                         <span class="text-muted">📍 Địa điểm:</span> <strong class="text-dark">@Model.Location</strong>
                     </div>
@@ -48,28 +59,33 @@
                         <span class="text-muted">📅 Ngày tổ chức:</span> <strong class="text-dark">@Model.StartDate.ToString("dd/MM/yyyy")</strong>
                     </div>
                 </div>
+            </div>
 
-                <!-- Chữ ký và Xác thực -->
-                <div class="row align-items-center mt-3">
-                    <div class="col-4 text-start">
-                        <p class="text-muted mb-0" style="font-size: 10px;">Mã xác thực: <span class="fw-bold">@(registration?.CertificateCode ?? $"ES-{Model.Id}-{registration?.Id ?? 101}")</span></p>
-                        <p class="text-success mb-0 fw-bold" style="font-size: 10px;">🛡 Đã xác thực điện tử</p>
-                    </div>
-                    
-                    <div class="col-4 text-center">
-                        <div class="badge bg-light text-success border border-success rounded-circle fw-bold shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px;">
-                            ✓
-                        </div>
-                    </div>
+            <!-- Chữ ký và Xác thực -->
+            <div class="row align-items-center px-3 pb-1">
+                <div class="col-4 text-start">
+                    <p class="text-muted mb-0" style="font-size: 10.5px;">
+                        Mã xác thực: <span class="fw-bold text-dark">@(registration?.CertificateCode ?? $"ES-{Model.Id}-{registration?.Id ?? 101}")</span>
+                    </p>
+                    <p class="text-success mb-0 fw-bold" style="font-size: 10.5px;">🛡 Đã xác thực điện tử trên EcoSync</p>
+                </div>
 
-                    <div class="col-4 text-center">
-                        <p class="mb-0 text-muted" style="font-size: 11px;">Đà Nẵng, ngày @DateTime.Now.ToString("dd") tháng @DateTime.Now.ToString("MM") năm @DateTime.Now.Year</p>
-                        <p class="fw-bold text-success mb-3" style="font-size: 11px;">ĐẠI DIỆN BAN TỔ CHỨC</p>
-                        <p class="fw-bold text-dark mb-0" style="font-size: 11px;">Quản Trị Viên EcoSync</p>
+                <div class="col-4 text-center">
+                    <div class="rounded-circle fw-bold shadow-sm mx-auto"
+                         style="width: 48px; height: 48px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: 3px double #fde68a; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">
+                        ✓
                     </div>
                 </div>
 
+                <div class="col-4 text-center">
+                    <p class="mb-0 text-muted" style="font-size: 11px;">
+                        Đà Nẵng, ngày @DateTime.Now.ToString("dd") tháng @DateTime.Now.ToString("MM") năm @DateTime.Now.Year
+                    </p>
+                    <p class="fw-bold text-success mb-2" style="font-size: 11px;">ĐẠI DIỆN BAN TỔ CHỨC</p>
+                    <p class="fw-bold text-dark mb-0" style="font-size: 11.5px;">Quản Trị Viên EcoSync</p>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -78,20 +94,20 @@
 <style>
     .certificate-container {
         width: 100%;
-        max-width: 850px;
+        max-width: 860px;
         aspect-ratio: 1.414 / 1;
-        border: 5px solid #198754 !important;
-        background: linear-gradient(135deg, #ffffff 0%, #fcfdfd 100%);
+        border: 6px solid #059669 !important;
+        background: radial-gradient(circle at center, #ffffff 0%, #f4fbf7 100%);
     }
 
     .certificate-border {
         position: absolute;
-        top: 8px;
-        left: 8px;
-        right: 8px;
-        bottom: 8px;
-        border: 2px dashed #198754;
-        border-radius: 8px;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 2px dashed #10b981;
+        border-radius: 12px;
     }
 
     @@media print {
@@ -108,7 +124,7 @@
             width: 100vw;
             height: 100vh;
             max-width: none;
-            border: 4px solid #198754 !important;
+            border: 5px solid #059669 !important;
             box-shadow: none !important;
         }
         .no-print {

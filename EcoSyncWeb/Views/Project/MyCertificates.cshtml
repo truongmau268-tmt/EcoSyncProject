@@ -4,15 +4,20 @@
     var registrations = ViewBag.Registrations as List<EcoSyncWeb.Models.ProjectRegistration>;
 }
 
-<div class="container mt-4 mb-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-success display-6">🏆 Phòng Vinh Danh & Giấy Chứng Nhận</h1>
-        <p class="text-muted">Những ghi nhận và chứng nhận tình nguyện viên chính thức từ Ban Tổ Chức EcoSync.</p>
+<div class="container mt-3 mb-5 animate-fade-up">
+    <div class="eco-page-header mb-4 text-center">
+        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+            ✨ Bảng Vàng Ghi Nhận Cống Hiến
+        </span>
+        <h1 class="fw-extrabold display-6 mb-2">🏆 Phòng Vinh Danh &amp; Giấy Chứng Nhận</h1>
+        <p class="mb-0 text-white text-opacity-85">
+            Những ghi nhận và chứng nhận tình nguyện viên chính thức từ Ban Tổ Chức EcoSync Đà Nẵng.
+        </p>
     </div>
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm text-center border-0" role="alert">
             @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -20,11 +25,15 @@
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5 bg-white rounded-4 shadow-sm p-5">
-            <span style="font-size: 48px;">🏅</span>
+        <div class="card border-0 text-center py-5 bg-white rounded-4 shadow-sm p-5">
+            <span style="font-size: 56px;">🏅</span>
             <h4 class="fw-bold text-dark mt-3">Chưa có Giấy chứng nhận nào</h4>
-            <p class="text-muted">Bạn sẽ nhận được Giấy chứng nhận điện tử sau khi hoàn thành xuất sắc các chiến dịch cộng đồng và được Admin phê duyệt.</p>
-            <a asp-action="Index" class="btn btn-success rounded-pill px-4 fw-bold mt-2">Khám phá chiến dịch ngay</a>
+            <p class="text-muted mx-auto" style="max-width: 520px;">
+                Bạn sẽ nhận được Giấy chứng nhận điện tử sau khi hoàn thành xuất sắc các chiến dịch cộng đồng, gửi khảo sát và được Admin phê duyệt.
+            </p>
+            <div class="mt-2">
+                <a asp-action="Index" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm">🌱 Khám phá chiến dịch ngay</a>
+            </div>
         </div>
     }
     else
@@ -33,21 +42,31 @@
             @foreach (var project in Model)
             {
                 <div class="col">
-                    <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 position-relative overflow-hidden" style="border: 3px solid #198754 !important; background: linear-gradient(0deg, #f8f9fa 0%, #ffffff 100%);">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 position-relative overflow-hidden eco-card-hover"
+                         style="border: 2px solid #10b981 !important; background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 45%);">
                         <div class="card-body d-flex flex-column">
-                            <span style="font-size: 40px;">🌿🏆🌿</span>
-                            <h4 class="fw-bold text-uppercase text-success mt-2 mb-1">Giấy Chứng Nhận</h4>
-                            <p class="text-muted small text-uppercase tracking-wider">EcoSync Community Platform</p>
-                            
-                            <hr class="w-25 mx-auto my-2" />
+                            <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 text-success shadow-sm" style="width: 68px; height: 68px; font-size: 32px;">
+                                🏆
+                            </div>
+                            <h4 class="fw-extrabold text-uppercase text-success mt-2 mb-1" style="letter-spacing: 1px;">Giấy Chứng Nhận</h4>
+                            <p class="text-muted small text-uppercase mb-2" style="letter-spacing: 1.5px; font-size: 0.72rem;">EcoSync Community Platform</p>
 
-                            <p class="mb-1 text-secondary small">Chứng nhận tình nguyện viên:</p>
-                            <h5 class="fw-bold text-dark">@User.Identity?.Name</h5>
-                            <p class="text-secondary small mt-1 flex-grow-1">Đã hoàn thành chiến dịch:<br /><strong class="text-success">@project.Title</strong></p>
+                            <hr class="w-25 mx-auto my-2 border-success" />
+
+                            <p class="mb-1 text-secondary small">Trao tặng Tình nguyện viên:</p>
+                            <h4 class="fw-bold text-dark mb-2">@User.Identity?.Name</h4>
+                            <p class="text-secondary small mt-1 flex-grow-1">
+                                Đã hoàn thành xuất sắc chiến dịch:<br />
+                                <strong class="text-success fs-6">@project.Title</strong>
+                            </p>
 
                             <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                                <span class="badge bg-success px-3 py-2 rounded-pill small">Đã xác thực</span>
-                                <a asp-action="Certificate" asp-route-projectId="@project.Id" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm">📜 Xem GCN Chi Tiết</a>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill small fw-bold">
+                                    🛡 Đã xác thực điện tử
+                                </span>
+                                <a asp-action="Certificate" asp-route-projectId="@project.Id" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm">
+                                    📜 Xem &amp; In GCN
+                                </a>
                             </div>
                         </div>
                     </div>

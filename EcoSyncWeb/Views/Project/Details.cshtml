@@ -4,174 +4,244 @@
     var feedbacks = ViewBag.Feedbacks as List<EcoSyncWeb.Models.Feedback> ?? new List<EcoSyncWeb.Models.Feedback>();
 }
 
-<div class="container mt-4 mb-5">
+<style>
+    .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: .4rem;
+        padding: .65rem 1rem;
+        border: 1.5px solid #fde68a;
+        border-radius: 1.25rem;
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.10);
+    }
+
+    .star-rating-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+    }
+
+    .star-rating-label {
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 2.6rem;
+        line-height: 1;
+        transition: color .18s ease, transform .18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .star-rating-label:hover,
+    .star-rating-label:hover ~ .star-rating-label,
+    .star-rating-input:checked ~ .star-rating-label {
+        color: #f59e0b;
+        text-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    .star-rating-label:hover {
+        transform: scale(1.18) rotate(-4deg);
+    }
+
+    .star-rating-input:focus-visible + .star-rating-label {
+        outline: 2px solid #10b981;
+        outline-offset: 3px;
+        border-radius: .2rem;
+    }
+</style>
+
+<div class="container mt-3 mb-5 animate-fade-up">
     <div class="mb-3">
-        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Quay lại danh sách dự án</a>
+        <a asp-action="Index" class="btn btn-white bg-white border rounded-pill px-4 fw-bold shadow-sm text-secondary">
+            ⬅ Quay lại danh sách dự án
+        </a>
     </div>
 
     <!-- Thông tin chi tiết chiến dịch -->
-    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
         {
-            <img src="@Model.ImageUrl" alt="Ảnh chiến dịch @Model.Title" class="img-fluid mb-4 w-100" style="max-height: 420px; object-fit: cover; border-radius: 24px !important;" onerror="this.onerror=null;this.src='/uploads/projects/chiendich@(Model.Id).jpg';" />
+            <div class="eco-img-wrap mb-4">
+                <img src="@Model.ImageUrl" alt="Ảnh chiến dịch @Model.Title" class="img-fluid w-100" style="max-height: 420px; object-fit: cover;" onerror="this.onerror=null;this.src='/uploads/projects/chiendich@(Model.Id).jpg';" />
+            </div>
         }
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            @if (Model.Status == "Đã kết thúc")
-            {
-                <span class="badge bg-secondary px-3 py-2 rounded-pill">Đã kết thúc</span>
-            }
-            else
-            {
-                <span class="badge bg-primary px-3 py-2 rounded-pill">Sắp diễn ra</span>
-            }
-            <span class="text-muted fw-semibold">📅 Ngày diễn ra: @Model.StartTime.ToString("dd/MM/yyyy")</span>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                @if (Model.Status == "Đã kết thúc")
+                {
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill">⏹ Đã kết thúc</span>
+                }
+                else if (Model.Status == "Đang diễn ra")
+                {
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">🔥 Đang diễn ra</span>
+                }
+                else
+                {
+                    <span class="badge bg-success px-3 py-2 rounded-pill fw-bold">✨ Sắp diễn ra</span>
+                }
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                    📍 @Model.Location
+                </span>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
+                📅 Ngày diễn ra: @Model.StartTime.ToString("dd/MM/yyyy")
+            </span>
         </div>
 
-        <h1 class="fw-bold text-success display-6 mb-3">@Model.Title</h1>
-        <p class="text-secondary fw-semibold fs-5 mb-4">📍 Địa điểm: @Model.Location</p>
+        <h1 class="fw-extrabold text-dark display-6 mb-3">@Model.Title</h1>
 
-        <hr />
+        <hr class="my-4 opacity-10" />
 
-        <h4 class="fw-bold text-dark mt-3 mb-2">Giới thiệu chiến dịch</h4>
-        <p class="text-muted" style="font-size: 16px; line-height: 1.8;">@Model.Description</p>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="eco-kpi-icon bg-success bg-opacity-10 text-success" style="width: 36px; height: 36px; font-size: 1.1rem;">🌿</span>
+            <h5 class="fw-bold text-dark mb-0">Giới thiệu chi tiết chiến dịch</h5>
+        </div>
+        <p class="text-secondary mb-0" style="font-size: 16px; line-height: 1.85; white-space: pre-line;">@Model.Description</p>
+
+        @if (Model.Status != "Đã kết thúc")
+        {
+            <div class="mt-4 pt-3 border-top">
+                <a asp-action="RegisterForm" asp-route-projectId="@Model.Id" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                    🙋 Đăng ký tham gia chiến dịch này
+                </a>
+            </div>
+        }
     </div>
 
     <!-- ĐÁNH GIÁ SAU CHIẾN DỊCH -->
     <div class="mt-5">
-        <h3 class="fw-bold text-success mb-2">💬 Đóng góp ý kiến &amp; Đánh giá chiến dịch</h3>
-        <p class="text-muted mb-4">Chia sẻ trải nghiệm của bạn sau khi tham gia chiến dịch.</p>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">💬 Đóng góp ý kiến &amp; Đánh giá chiến dịch</h3>
+                <p class="text-muted mb-0">Chia sẻ trải nghiệm thực tế của bạn để AI tổng hợp và làm điều kiện cấp Giấy chứng nhận.</p>
+            </div>
+            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold">
+                @feedbacks.Count đánh giá
+            </span>
+        </div>
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger rounded-3" role="alert">@TempData["ErrorMessage"]</div>
+            <div class="alert alert-danger rounded-4 border-0 shadow-sm" role="alert">@TempData["ErrorMessage"]</div>
         }
 
         @if (ViewBag.HasSubmittedFeedback == true)
         {
-            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white" style="border: 2px solid #198754 !important;">
-                <div class="mb-3">
-                    <span style="font-size: 50px;">🎉</span>
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white" style="border: 2px solid #10b981 !important; background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);">
+                <div class="mb-2">
+                    <span style="font-size: 52px;">🎉</span>
                 </div>
                 <h4 class="fw-bold text-success mb-2">Cảm ơn bạn đã gửi đánh giá!</h4>
-                <p class="text-secondary mb-0">Phản hồi của bạn đã được ghi nhận.</p>
+                <p class="text-secondary mb-0">Phản hồi của bạn đã được hệ thống AI ghi nhận. Ban tổ chức sẽ sớm xét duyệt Giấy chứng nhận cho bạn.</p>
             </div>
         }
         else if (ViewBag.CanSubmitFeedback == true)
         {
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 bg-white">
                 <form asp-controller="Feedback" asp-action="Submit" method="post">
                     <input type="hidden" name="projectId" value="@Model.Id" />
 
                     <fieldset class="mb-4">
-                        <legend class="fw-bold text-dark fs-6 mb-2">Đánh giá chiến dịch</legend>
-                        <div class="star-rating" role="radiogroup" aria-label="Chọn số sao đánh giá">
-                            @for (var rating = 5; rating >= 1; rating--)
-                            {
-                                var inputId = $"rating-{rating}";
-                                <input class="star-rating-input" type="radio" name="rating" id="@inputId" value="@rating" required />
-                                <label class="star-rating-label" for="@inputId" title="@rating sao" aria-label="@rating sao">★</label>
-                            }
+                        <legend class="fw-bold text-dark fs-6 mb-2">1. Chọn mức độ hài lòng của bạn</legend>
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <div class="star-rating" role="radiogroup" aria-label="Chọn số sao đánh giá">
+                                @for (var rating = 5; rating >= 1; rating--)
+                                {
+                                    var inputId = $"rating-{rating}";
+                                    <input class="star-rating-input" type="radio" name="rating" id="@inputId" value="@rating" required />
+                                    <label class="star-rating-label" for="@inputId" title="@rating sao" aria-label="@rating sao">★</label>
+                                }
+                            </div>
+                            <span id="rating-caption" class="badge bg-warning bg-opacity-15 text-dark rounded-pill px-3 py-2 fw-semibold">
+                                Hãy chạm vào số sao ⭐
+                            </span>
                         </div>
                     </fieldset>
 
-                    <div class="mb-3">
-                        <label for="feedback-content" class="fw-bold text-dark d-block mb-2">Chia sẻ cảm nhận và góp ý của bạn</label>
+                    <div class="mb-4">
+                        <label for="feedback-content" class="fw-bold text-dark d-block mb-2">2. Chia sẻ cảm nhận và góp ý của bạn</label>
                         <textarea id="feedback-content" name="content" class="form-control rounded-4 p-3" rows="4"
-                                  maxlength="1000" placeholder="Nhập chia sẻ hoặc góp ý của bạn..." required></textarea>
-                        <div class="form-text">Tối đa 1000 ký tự.</div>
+                                  maxlength="1000" placeholder="Nhập chia sẻ về công tác tổ chức, kỷ niệm đáng nhớ hoặc góp ý cải thiện..." required></textarea>
+                        <div class="form-text mt-1">Tối đa 1000 ký tự · AI sẽ tự động phân tích sắc thái phản hồi của bạn.</div>
                     </div>
 
-                    <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Gửi đánh giá</button>
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                        🚀 Gửi đánh giá ngay
+                    </button>
                 </form>
             </div>
         }
         else
         {
-            <div class="alert alert-info rounded-4" role="status">
+            <div class="alert alert-info rounded-4 border-0 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 px-4" role="status">
+                <div>
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <span>@ViewBag.FeedbackEligibilityMessage</span>
+                </div>
                 @if (User.Identity?.IsAuthenticated != true)
                 {
-                    <span>@ViewBag.FeedbackEligibilityMessage </span>
-                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.LoginReturnUrl" class="alert-link">Đăng nhập</a>
-                }
-                else
-                {
-                    @ViewBag.FeedbackEligibilityMessage
+                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.LoginReturnUrl" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Đăng nhập</a>
                 }
             </div>
         }
 
         <!-- Danh sách phản hồi đã gửi -->
-        <h4 class="fw-bold text-success mt-5 mb-3">💬 Ý Kiến Đóng Góp Từ Tình Nguyện Viên</h4>
-        <style>
-            .star-rating {
-                display: inline-flex;
-                flex-direction: row-reverse;
-                justify-content: flex-end;
-                gap: .3rem;
-                padding: .55rem .8rem;
-                border: 1px solid #ffe08a;
-                border-radius: 1rem;
-                background: linear-gradient(135deg, #fffdf4, #fff8dd);
-            }
-
-            .star-rating-input {
-                position: absolute;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-                clip: rect(0, 0, 0, 0);
-                white-space: nowrap;
-                clip-path: inset(50%);
-            }
-
-            .star-rating-label {
-                color: #d5d9df;
-                cursor: pointer;
-                font-size: 2.7rem;
-                line-height: 1;
-                text-shadow: 0 1px 2px rgba(122, 91, 0, .18);
-                transition: color .15s ease-in-out, transform .15s ease-in-out;
-            }
-
-            .star-rating-label:hover,
-            .star-rating-label:hover ~ .star-rating-label,
-            .star-rating-input:checked ~ .star-rating-label {
-                color: #ffc107;
-            }
-
-            .star-rating-label:hover {
-                transform: scale(1.12);
-            }
-
-            .star-rating-input:focus-visible + .star-rating-label {
-                outline: 2px solid #198754;
-                outline-offset: 3px;
-                border-radius: .2rem;
-            }
-        </style>
+        <h4 class="fw-bold text-dark mt-5 mb-3">🌟 Ý Kiến Đóng Góp Từ Tình Nguyện Viên</h4>
 
         @if (!feedbacks.Any())
         {
-            <div class="text-center py-4 bg-white rounded-4 shadow-sm text-muted">
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm text-muted">
+                <div class="fs-2 mb-2">💭</div>
                 Chưa có đánh giá nào cho chiến dịch này.
             </div>
         }
         else
         {
-            <div class="d-flex flex-column gap-3">
+            <div class="row g-3">
                 @foreach (var fb in feedbacks)
                 {
-                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="fw-bold text-dark mb-0">👤 @fb.AuthorName</h6>
-                            <span class="text-muted small">🕒 @fb.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    var initial = !string.IsNullOrWhiteSpace(fb.AuthorName) ? fb.AuthorName.Trim()[0].ToString().ToUpper() : "V";
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="eco-avatar">@initial</span>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-0">@fb.AuthorName</h6>
+                                        <span class="text-muted" style="font-size: 0.76rem;">🕒 @fb.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                </div>
+                                <div class="text-warning fs-5" aria-label="@fb.Rating trên 5 sao">
+                                    @string.Concat(Enumerable.Repeat("★", Math.Clamp(fb.Rating, 0, 5)))<span class="text-muted opacity-25">@string.Concat(Enumerable.Repeat("★", 5 - Math.Clamp(fb.Rating, 0, 5)))</span>
+                                </div>
+                            </div>
+                            <p class="text-secondary mb-0 mt-2" style="line-height: 1.6;">@fb.Content</p>
                         </div>
-                        <div class="text-warning mb-2" aria-label="@fb.Rating trên 5 sao">@string.Concat(Enumerable.Repeat("★", Math.Clamp(fb.Rating, 0, 5)))@string.Concat(Enumerable.Repeat("☆", 5 - Math.Clamp(fb.Rating, 0, 5)))</div>
-                        <p class="text-secondary mb-0">@fb.Content</p>
                     </div>
-
                 }
             </div>
-
         }
     </div>
+</div>
+
+@section Scripts {
+    <script>
+        const captions = {
+            1: "1 sao · Cần cải thiện nhiều 😔",
+            2: "2 sao · Chưa thực sự hài lòng 😕",
+            3: "3 sao · Bình thường, tạm ổn 🙂",
+            4: "4 sao · Rất tốt, đáng tham gia 😊",
+            5: "5 sao · Tuyệt vời & đầy ý nghĩa! 🌟"
+        };
+        document.querySelectorAll('.star-rating-input').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const cap = document.getElementById('rating-caption');
+                if (cap) cap.textContent = captions[this.value] || `${this.value} sao`;
+            });
+        });
+    </script>
+}

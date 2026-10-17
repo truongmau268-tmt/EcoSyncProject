@@ -4,26 +4,36 @@
     var keyword = ViewBag.Keyword as string;
 }
 
-<div class="container mt-4 mb-5">
-    <div class="text-center mb-4">
-        <h1 class="fw-bold text-success display-5">📰 Tin tức & Bài viết</h1>
-        <p class="text-muted lead">Truyền thông cộng đồng, chia sẻ kiến thức và hoạt động bảo vệ môi trường.</p>
+<div class="container mt-3 mb-5 animate-fade-up">
+    <!-- Hero Header -->
+    <div class="eco-page-header mb-4 text-center">
+        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+            🌿 Góc Truyền Thông Xanh
+        </span>
+        <h1 class="fw-extrabold display-6 mb-2">📰 Tin Tức &amp; Bài Viết Môi Trường</h1>
+        <p class="mb-0 text-white text-opacity-85">
+            Truyền thông cộng đồng, chia sẻ kiến thức sinh thái và cập nhật hoạt động bảo vệ môi trường tại Đà Nẵng.
+        </p>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
         <form asp-action="Index" method="get" class="row g-2 align-items-center">
             <div class="col-md-10">
-                <input type="text" name="keyword" value="@keyword" class="form-control rounded-pill px-3" placeholder="🔍 Tìm bài viết theo tiêu đề hoặc nội dung..." />
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3 text-muted">🔍</span>
+                    <input type="text" name="keyword" value="@keyword" class="form-control border-start-0 rounded-end-pill px-3" placeholder="Tìm bài viết theo tiêu đề hoặc nội dung..." />
+                </div>
             </div>
             <div class="col-md-2 d-grid">
-                <button type="submit" class="btn btn-success rounded-pill fw-bold">Tìm kiếm</button>
+                <button type="submit" class="btn btn-success rounded-pill fw-bold py-2">Tìm kiếm</button>
             </div>
         </form>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm border">
+        <div class="card border-0 text-center py-5 text-muted bg-white rounded-4 shadow-sm">
+            <div class="fs-1 mb-2">📰</div>
             Chưa có bài viết nào khớp nội dung tìm kiếm.
         </div>
     }
@@ -33,14 +43,22 @@
         var rest = Model.Skip(1).ToList();
 
         <!-- Bài viết nổi bật -->
-        <a asp-action="Details" asp-route-id="@first.Id" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white" style="border-left: 6px solid #198754 !important;">
-                <span class="badge bg-success rounded-pill px-3 py-2 mb-2 align-self-start">🌟 Mới nhất</span>
-                <h3 class="fw-bold text-dark">@first.Title</h3>
-                <p class="text-muted mb-2" style="line-height: 1.7;">
+        <a asp-action="Details" asp-route-id="@first.Id" class="text-decoration-none d-block mb-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white eco-card-hover"
+                 style="border-left: 6px solid #10b981 !important; background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 65%);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success rounded-pill px-3 py-2">🌟 Bài viết tiêu điểm</span>
+                    <span class="badge bg-white text-secondary border rounded-pill px-3 py-2">
+                        🕒 @first.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+                <h2 class="fw-extrabold text-dark mb-3">@first.Title</h2>
+                <p class="text-secondary mb-3" style="line-height: 1.75; font-size: 1.02rem;">
                     @(first.Content.Length > 260 ? first.Content[..260] + "..." : first.Content)
                 </p>
-                <span class="small text-muted">🕒 @first.CreatedAt.ToString("dd/MM/yyyy HH:mm") — bấm để xem chi tiết →</span>
+                <span class="fw-bold text-success d-inline-flex align-items-center gap-1">
+                    Đọc toàn bộ bài viết <i class="bi bi-arrow-right"></i>
+                </span>
             </div>
         </a>
 
@@ -48,15 +66,22 @@
             @foreach (var news in rest)
             {
                 <div class="col">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 bg-white">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 bg-white eco-card-hover">
                         <div class="card-body p-4 d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-semibold">
+                                    🌱 Tin hoạt động
+                                </span>
+                            </div>
                             <h5 class="fw-bold text-dark mb-2">@news.Title</h5>
-                            <p class="text-muted small flex-grow-1" style="line-height: 1.6;">
+                            <p class="text-muted small flex-grow-1" style="line-height: 1.65;">
                                 @(news.Content.Length > 140 ? news.Content[..140] + "..." : news.Content)
                             </p>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                                <span class="text-muted" style="font-size: 12px;">🕒 @news.CreatedAt.ToString("dd/MM/yyyy")</span>
-                                <a asp-action="Details" asp-route-id="@news.Id" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold">Đọc tiếp</a>
+                            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top">
+                                <span class="text-muted" style="font-size: 12.5px;">🕒 @news.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                <a asp-action="Details" asp-route-id="@news.Id" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-bold">
+                                    Đọc tiếp →
+                                </a>
                             </div>
                         </div>
                     </div>

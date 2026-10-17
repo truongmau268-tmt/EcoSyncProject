@@ -17,7 +17,7 @@ CREATE TABLE `AiChatLogs` (
 
 CREATE TABLE `AiSummaries` (
     `Id` int NOT NULL AUTO_INCREMENT,
-    `ProjectRegistrationId` int NOT NULL,
+    `ProjectRegistrationId` int NOT NULL,Reload Window
     `VolunteerName` longtext CHARACTER SET utf8mb4 NOT NULL,
     `Strengths` longtext CHARACTER SET utf8mb4 NOT NULL,
     `Weaknesses` longtext CHARACTER SET utf8mb4 NOT NULL,
@@ -96,3 +96,4 @@ CREATE UNIQUE INDEX `IX_Feedbacks_ProjectId_AuthorEmail` ON `Feedbacks` (`Projec
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20261015124730_InitialMySql', '8.0.32');
++

@@ -3,112 +3,109 @@
 }
 
 <style>
-    .register-card {
-        max-width: 900px;
-        border-radius: 32px !important;
+    .auth-wrapper {
+        max-width: 960px;
+        border-radius: 2rem !important;
+        overflow: hidden;
+        box-shadow: 0 24px 48px -12px rgba(6, 78, 59, 0.16) !important;
+        border: 1px solid rgba(16, 185, 129, 0.18) !important;
+    }
+
+    .auth-left-panel {
+        background: linear-gradient(135deg, #064e3b 0%, #059669 55%, #0d9488 100%);
+        border-radius: 1.65rem !important;
+        position: relative;
         overflow: hidden;
     }
 
-    .register-card .left-box {
-        background: linear-gradient(135deg, #198754 0%, #157347 100%);
-        border-radius: 28px !important;
-    }
-
-    .register-card .featured-image {
+    .auth-featured-img {
         width: 100%;
-        max-width: 360px;
-        height: 250px;
-        border-radius: 28px;
+        max-width: 340px;
+        height: 230px;
+        border-radius: 1.5rem;
         overflow: hidden;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        padding: 0.5rem;
     }
 
-    .register-card .featured-image img {
+    .auth-featured-img img {
         display: block;
         width: 100%;
         height: 100%;
         object-fit: contain;
-        border-radius: 28px !important;
+        border-radius: 1.25rem !important;
         mix-blend-mode: screen;
-    }
-
-    .register-card .form-control {
-        border-radius: 50rem !important;
-    }
-
-    .register-card .btn {
-        border-radius: 50rem !important;
-    }
-
-    .register-card .alert {
-        border-radius: 20px !important;
     }
 </style>
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
-    <div class="row border p-3 bg-white shadow-lg box-area w-100 register-card">
+<div class="container d-flex justify-content-center align-items-center py-4 animate-fade-up" style="min-height: 82vh;">
+    <div class="row p-3 bg-white w-100 auth-wrapper">
 
         <!-- Cột trái -->
-        <div class="col-md-6 overflow-hidden d-flex justify-content-center align-items-center flex-column left-box p-4">
-            <div class="featured-image mb-3 text-center w-100">
-                <img src="~/dangnhap.jpg" asp-append-version="true" alt="EcoSync"
-                     class="img-fluid shadow-lg border border-white border-opacity-25" />
+        <div class="col-md-6 d-flex justify-content-center align-items-center flex-column auth-left-panel p-4 p-md-5 text-white">
+            <div class="auth-featured-img mb-3 text-center">
+                <img src="~/dangnhap.jpg" asp-append-version="true" alt="EcoSync" class="img-fluid" />
             </div>
-            <p class="text-white fs-2 text-center fw-bold">Gia nhập EcoSync</p>
-            <p class="text-white text-center small" style="opacity: 0.85; line-height: 1.6;">
-                Đăng ký tài khoản tình nguyện viên để cùng chung tay bảo vệ môi trường, nhận Giấy chứng nhận và tham gia các chiến dịch ý nghĩa.
+            <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+                ✨ Trở thành Tình nguyện viên Xanh
+            </span>
+            <h2 class="fw-extrabold text-center mb-2">Gia Nhập EcoSync</h2>
+            <p class="text-white text-center small mb-0" style="opacity: 0.88; line-height: 1.65;">
+                Đăng ký tài khoản tình nguyện viên để cùng chung tay bảo vệ môi trường, nhận Giấy chứng nhận điện tử và tham gia các chiến dịch ý nghĩa tại Đà Nẵng.
             </p>
         </div>
 
         <!-- Cột phải -->
-        <div class="col-md-6 right-box d-flex justify-content-center align-items-center p-4">
+        <div class="col-md-6 d-flex justify-content-center align-items-center p-4 p-md-5">
             <div class="w-100">
-                <div class="header-text mb-3 text-center">
-                    <h3 class="fw-bold text-dark">Tạo tài khoản</h3>
-                    <p class="text-muted small">Điền thông tin để trở thành thành viên EcoSync.</p>
+                <div class="mb-3 text-center text-md-start">
+                    <h3 class="fw-extrabold text-dark mb-1">Tạo tài khoản mới 🌱</h3>
+                    <p class="text-muted small mb-0">Điền thông tin bên dưới để trở thành thành viên EcoSync.</p>
                 </div>
 
                 @if (TempData["ErrorMessage"] != null)
                 {
-                    <div class="alert alert-danger py-2 small text-center">
+                    <div class="alert alert-danger py-2 px-3 small text-center rounded-4 border-0">
                         @TempData["ErrorMessage"]
                     </div>
                 }
 
                 <form asp-action="Register" method="post">
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">Họ và tên</label>
-                        <input name="fullName" type="text" class="form-control bg-light fs-6 px-4 py-2"
+                        <label class="form-label fw-bold small text-dark">👤 Họ và tên</label>
+                        <input name="fullName" type="text" class="form-control rounded-pill px-4 py-2"
                                placeholder="Nhập họ tên đầy đủ..." required />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">Email</label>
-                        <input name="email" type="email" class="form-control bg-light fs-6 px-4 py-2"
+                        <label class="form-label fw-bold small text-dark">📧 Email</label>
+                        <input name="email" type="email" class="form-control rounded-pill px-4 py-2"
                                placeholder="Nhập địa chỉ email..." required />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">Số điện thoại</label>
-                        <input name="phone" type="text" class="form-control bg-light fs-6 px-4 py-2"
-                               placeholder="Nhập số điện thoại..." required />
+                        <label class="form-label fw-bold small text-dark">📞 Số điện thoại</label>
+                        <input name="phone" type="text" class="form-control rounded-pill px-4 py-2"
+                               placeholder="Nhập số điện thoại (10 số)..." required />
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold small text-secondary">Mật khẩu</label>
-                        <input name="password" type="password" class="form-control bg-light fs-6 px-4 py-2"
-                               placeholder="Tạo mật khẩu..." required />
+                        <label class="form-label fw-bold small text-dark">🔒 Mật khẩu</label>
+                        <input name="password" type="password" class="form-control rounded-pill px-4 py-2"
+                               placeholder="Tạo mật khẩu (tối thiểu 8 ký tự)..." required />
                     </div>
 
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-success btn-lg fw-bold shadow-sm">
-                            Đăng Ký Tài Khoản
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm">
+                            ✨ Đăng Ký Tài Khoản
                         </button>
                     </div>
 
-                    <div class="text-center">
+                    <div class="text-center pt-2 border-top">
                         <small class="text-muted">
                             Đã có tài khoản?
-                            <a asp-action="Login" class="text-success fw-bold text-decoration-none">Đăng nhập ngay</a>
+                            <a asp-action="Login" class="text-success fw-bold text-decoration-none ms-1">Đăng nhập ngay →</a>
                         </small>
                     </div>
                 </form>

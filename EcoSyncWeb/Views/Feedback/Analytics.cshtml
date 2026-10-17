@@ -19,133 +19,232 @@
     var positivePct = total > 0 ? Math.Round(positive * 100.0 / total, 1) : 0;
 }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container mt-3 mb-5 animate-fade-up">
+    <!-- Hero Header -->
+    <div class="eco-page-header mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <h2 class="fw-bold text-success mb-1">📊 AI Dashboard - Sentiment & KPI Analytics</h2>
-            <p class="text-muted mb-0">Thống kê thời gian thực, phân tích sắc thái cảm xúc bằng Groq và tổng hợp ý kiến tình nguyện viên.</p>
+            <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-15 px-3 py-1 rounded-pill small fw-semibold mb-2">
+                <span class="rounded-circle bg-warning d-inline-block" style="width: 8px; height: 8px;"></span>
+                <span>Groq AI Sentiment &amp; KPI Intelligence</span>
+            </div>
+            <h2 class="fw-bold mb-1">📊 AI Dashboard - Phân Tích Cảm Xúc &amp; Hiệu Quả Chiến Dịch</h2>
+            <p class="mb-0 text-white text-opacity-75 small">
+                Tổng hợp dữ liệu thời gian thực từ các chiến dịch cộng đồng và đánh giá tình nguyện viên tại Đà Nẵng.
+            </p>
         </div>
-        <a asp-controller="Project" asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">⬅ Về danh sách dự án</a>
+        <div class="flex-shrink-0">
+            <a asp-controller="Project" asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold text-success shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i>Về danh sách dự án
+            </a>
+        </div>
     </div>
 
-    <!-- PB13: 4 thẻ KPI -->
+    <!-- PB13: 4 thẻ KPI sinh động -->
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-primary h-100">
-                <h6 class="text-muted fw-bold mb-1">🎯 Tổng chiến dịch</h6>
-                <h3 class="fw-bold text-primary mt-2 mb-0">@kpiCampaigns</h3>
+        <div class="col-6 col-lg-3">
+            <div class="card eco-kpi-card h-100 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-bold text-uppercase">Tổng chiến dịch</span>
+                    <div class="eco-kpi-icon bg-primary bg-opacity-10 text-primary">🎯</div>
+                </div>
+                <h2 class="fw-extrabold text-primary mb-1 kpi-counter" data-target="@kpiCampaigns">@kpiCampaigns</h2>
+                <div class="small text-muted"><i class="bi bi-broadcast text-primary me-1"></i>Chiến dịch trên hệ thống</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-success h-100">
-                <h6 class="text-muted fw-bold mb-1">👥 Tình nguyện viên</h6>
-                <h3 class="fw-bold text-success mt-2 mb-0">@kpiVolunteers</h3>
+        <div class="col-6 col-lg-3">
+            <div class="card eco-kpi-card h-100 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-bold text-uppercase">Tình nguyện viên</span>
+                    <div class="eco-kpi-icon bg-success bg-opacity-10 text-success">👥</div>
+                </div>
+                <h2 class="fw-extrabold text-success mb-1 kpi-counter" data-target="@kpiVolunteers">@kpiVolunteers</h2>
+                <div class="small text-muted"><i class="bi bi-person-check text-success me-1"></i>Thành viên cộng đồng</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-warning h-100">
-                <h6 class="text-muted fw-bold mb-1">📋 Hồ sơ ứng tuyển</h6>
-                <h3 class="fw-bold text-warning mt-2 mb-0">@kpiRegistrations</h3>
+        <div class="col-6 col-lg-3">
+            <div class="card eco-kpi-card h-100 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-bold text-uppercase">Hồ sơ ứng tuyển</span>
+                    <div class="eco-kpi-icon bg-warning bg-opacity-15 text-warning">📋</div>
+                </div>
+                <h2 class="fw-extrabold text-warning mb-1 kpi-counter" data-target="@kpiRegistrations">@kpiRegistrations</h2>
+                <div class="small text-muted"><i class="bi bi-file-earmark-text text-warning me-1"></i>Lượt đăng ký tham gia</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-4 p-3 bg-white text-center border-top border-4 border-danger h-100">
-                <h6 class="text-muted fw-bold mb-1">🏆 GCN đã cấp</h6>
-                <h3 class="fw-bold text-danger mt-2 mb-0">@kpiCertificates</h3>
+        <div class="col-6 col-lg-3">
+            <div class="card eco-kpi-card h-100 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-bold text-uppercase">GCN đã cấp</span>
+                    <div class="eco-kpi-icon bg-danger bg-opacity-10 text-danger">🏆</div>
+                </div>
+                <h2 class="fw-extrabold text-danger mb-1 kpi-counter" data-target="@kpiCertificates">@kpiCertificates</h2>
+                <div class="small text-muted"><i class="bi bi-patch-check text-danger me-1"></i>Chứng nhận điện tử</div>
             </div>
         </div>
     </div>
 
-    <!-- PB13/PB16: biểu đồ Chart.js -->
+    <!-- PB13/PB16: Biểu đồ Chart.js -->
     <div class="row g-4 mb-4">
-        <div class="col-md-7">
-            <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
-                <h5 class="fw-bold text-success mb-3">📈 Lượt đăng ký theo chiến dịch</h5>
-                <canvas id="chartRegistrations" height="220"></canvas>
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">📈 Lượt đăng ký theo chiến dịch</h5>
+                        <span class="text-muted small">Mức độ thu hút tình nguyện viên của từng dự án</span>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold">Live Data</span>
+                </div>
+                <div class="flex-grow-1 d-flex align-items-center">
+                    <canvas id="chartRegistrations" height="220"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-5">
-            <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
-                <h5 class="fw-bold text-success mb-3">🥧 Tỷ lệ cảm xúc do AI phân loại (@total phản hồi)</h5>
-                <canvas id="chartSentiment" height="220"></canvas>
-                <div class="text-center small text-muted mt-2">
-                    TB số sao: <strong class="text-dark">@ViewBag.AvgRating ⭐</strong> ·
-                    Tích cực: <strong class="text-success">@positivePct%</strong>
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">🥧 Sắc thái cảm xúc AI</h5>
+                        <span class="text-muted small">Phân loại tự động trên @total phản hồi</span>
+                    </div>
+                    <span class="badge bg-warning bg-opacity-15 text-dark rounded-pill px-3 py-2 fw-bold">
+                        ⭐ @ViewBag.AvgRating / 5.0
+                    </span>
+                </div>
+                <div class="position-relative mx-auto" style="max-width: 260px;">
+                    <canvas id="chartSentiment" height="220"></canvas>
+                </div>
+                <div class="row g-2 mt-3 text-center">
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 bg-success bg-opacity-10">
+                            <div class="fw-bold text-success">@positive</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Tích cực (@positivePct%)</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 bg-secondary bg-opacity-10">
+                            <div class="fw-bold text-secondary">@neutral</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Trung tính</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded-3 bg-danger bg-opacity-10">
+                            <div class="fw-bold text-danger">@warning</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Cần cải thiện</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Khung AI Tóm tắt thông minh (PB15/PB16: sinh thật bởi Groq) -->
-    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-light border-start border-4 border-success">
-        <h5 class="fw-bold text-success mb-3">💡 AI Executive Summary (Groq tổng hợp tự động từ phản hồi thật)</h5>
-        <div id="ai-summary-loading" class="text-muted small"><i>⏳ Đang tải tổng hợp AI...</i></div>
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%); border-left: 5px solid #10b981 !important;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="eco-kpi-icon bg-success text-white shadow-sm" style="width: 42px; height: 42px; font-size: 1.25rem;">💡</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">AI Executive Summary</h5>
+                    <span class="text-muted small">Báo cáo tổng hợp tự động bởi mô hình ngôn ngữ lớn (Groq LLM)</span>
+                </div>
+            </div>
+            <span class="badge bg-success rounded-pill px-3 py-2">✨ AI Generated</span>
+        </div>
+
+        <div id="ai-summary-loading" class="text-muted small py-3">
+            <span class="spinner-border spinner-border-sm text-success me-2" role="status"></span>
+            <i>Đang tải bản tổng hợp thông minh từ AI...</i>
+        </div>
+
         <div id="ai-summary-content" class="d-none">
-            <div class="row">
+            <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="p-3 bg-white rounded-3 shadow-sm mb-3 mb-md-0 h-100">
-                        <h6 class="fw-bold text-success mb-2">🌟 Điểm được ghi nhận:</h6>
-                        <ul class="text-secondary small mb-0 ps-3" id="ai-strengths"></ul>
+                    <div class="p-3 bg-white rounded-4 shadow-sm border border-success border-opacity-25 h-100">
+                        <h6 class="fw-bold text-success mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-stars"></i> Điểm mạnh được ghi nhận
+                        </h6>
+                        <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.7;" id="ai-strengths"></ul>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="p-3 bg-white rounded-3 shadow-sm h-100">
-                        <h6 class="fw-bold text-danger mb-2">⚠️ Vấn đề cần cải thiện:</h6>
-                        <ul class="text-secondary small mb-0 ps-3" id="ai-weaknesses"></ul>
+                    <div class="p-3 bg-white rounded-4 shadow-sm border border-danger border-opacity-25 h-100">
+                        <h6 class="fw-bold text-danger mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Vấn đề cần cải thiện
+                        </h6>
+                        <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.7;" id="ai-weaknesses"></ul>
                     </div>
                 </div>
             </div>
-            <div class="p-3 bg-white rounded-3 shadow-sm mt-3">
-                <h6 class="fw-bold text-success mb-2">🧾 Nhận xét chung:</h6>
-                <p class="text-secondary small mb-0" id="ai-overall"></p>
+            <div class="p-3 bg-white rounded-4 shadow-sm mt-3 border">
+                <h6 class="fw-bold text-success mb-1"><i class="bi bi-journal-check me-1"></i>Nhận xét tổng quan &amp; Đề xuất:</h6>
+                <p class="text-secondary small mb-0" style="line-height: 1.65;" id="ai-overall"></p>
             </div>
         </div>
-        <div id="ai-summary-empty" class="d-none text-muted small">
-            <i>Chưa đủ dữ liệu hoặc chưa cấu hình API key AI để tổng hợp. Phản hồi mới nhất sẽ được AI phân tích và hiển thị tại đây.</i>
+
+        <div id="ai-summary-empty" class="d-none text-muted small py-2">
+            <i class="bi bi-info-circle me-1"></i><i>Chưa đủ dữ liệu hoặc chưa cấu hình API key AI để tổng hợp. Phản hồi mới nhất sẽ được AI phân tích và hiển thị tại đây.</i>
         </div>
     </div>
 
     <!-- Bảng danh sách chi tiết khảo sát -->
-    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="card-header bg-success text-white py-3">
-            <h5 class="mb-0 fw-bold">📋 Danh sách chi tiết khảo sát & Điều kiện cấp GCN</h5>
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">📋 Danh sách chi tiết khảo sát &amp; Điều kiện cấp GCN</h5>
+                <span class="text-muted small">Toàn bộ ý kiến đóng góp từ tình nguyện viên sau chiến dịch</span>
+            </div>
+            <div style="min-width: 250px;">
+                <input type="text" id="feedbackSearchInput" class="form-control form-control-sm rounded-pill px-3" placeholder="🔍 Lọc nhanh theo tên, nội dung..." />
+            </div>
         </div>
         <div class="card-body p-0">
             @if (!feedbacksList.Any())
             {
                 <div class="text-center py-5">
+                    <div class="fs-1 mb-2">📭</div>
                     <p class="text-muted mb-0">Chưa có dữ liệu khảo sát nào được gửi về.</p>
                 </div>
             }
             else
             {
-                <table class="table table-hover mb-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 ps-4">Tình nguyện viên</th>
-                            <th class="py-3">Đánh giá sao</th>
-                            <th class="py-3">Ý kiến đóng góp</th>
-                            <th class="py-3">AI Phân tích sắc thái</th>
-                            <th class="py-3 pe-4">Thời gian gửi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in feedbacksList)
-                        {
+                <div class="table-responsive">
+                    <table class="table eco-table table-hover mb-0 align-middle" id="feedbackTable">
+                        <thead>
                             <tr>
-                                <td class="ps-4 fw-bold text-success">@item.AuthorName</td>
-                                <td class="text-warning" aria-label="@item.Rating trên 5 sao">@string.Concat(Enumerable.Repeat("★", Math.Clamp(item.Rating, 0, 5)))@string.Concat(Enumerable.Repeat("☆", 5 - Math.Clamp(item.Rating, 0, 5)))</td>
-                                <td style="max-width: 450px;" class="small text-dark py-3">@item.Content</td>
-                                <td>
-                                    <span class="badge @(item.Sentiment.Contains("Tích cực") ? "bg-success" : item.Sentiment.Contains("Trung tính") ? "bg-secondary" : "bg-danger") px-3 py-2 rounded-pill">
-                                        @item.Sentiment
-                                    </span>
-                                </td>
-                                <td class="pe-4 text-muted small">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <th class="py-3 ps-4">Tình nguyện viên</th>
+                                <th class="py-3">Đánh giá sao</th>
+                                <th class="py-3">Ý kiến đóng góp</th>
+                                <th class="py-3 text-center">AI Phân tích sắc thái</th>
+                                <th class="py-3 pe-4 text-end">Thời gian gửi</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in feedbacksList)
+                            {
+                                var initial = !string.IsNullOrWhiteSpace(item.AuthorName) ? item.AuthorName.Trim()[0].ToString().ToUpper() : "V";
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="eco-avatar" style="width: 34px; height: 34px; font-size: 0.85rem;">@initial</span>
+                                            <span class="fw-bold text-dark">@item.AuthorName</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-warning fs-6 text-nowrap" aria-label="@item.Rating trên 5 sao">
+                                        @string.Concat(Enumerable.Repeat("★", Math.Clamp(item.Rating, 0, 5)))<span class="text-muted opacity-25">@string.Concat(Enumerable.Repeat("★", 5 - Math.Clamp(item.Rating, 0, 5)))</span>
+                                    </td>
+                                    <td style="max-width: 440px;" class="small text-secondary py-3">@item.Content</td>
+                                    <td class="text-center">
+                                        <span class="badge @(item.Sentiment.Contains("Tích cực") ? "bg-success" : item.Sentiment.Contains("Trung tính") ? "bg-secondary" : "bg-danger") px-3 py-2 rounded-pill shadow-sm">
+                                            @item.Sentiment
+                                        </span>
+                                    </td>
+                                    <td class="pe-4 text-muted small text-end text-nowrap">
+                                        <i class="bi bi-clock me-1"></i>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
     </div>
@@ -154,6 +253,34 @@
 @section Scripts {
     <script src="~/lib/chartjs/chart.umd.min.js"></script>
     <script>
+        // Hiệu ứng đếm số KPI
+        document.querySelectorAll('.kpi-counter').forEach(el => {
+            const target = parseInt(el.getAttribute('data-target') || '0', 10);
+            if (target <= 0) return;
+            let current = 0;
+            const step = Math.max(1, Math.ceil(target / 24));
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    el.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    el.textContent = current;
+                }
+            }, 25);
+        });
+
+        // Lọc nhanh bảng phản hồi
+        const searchInput = document.getElementById('feedbackSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const q = this.value.toLowerCase().trim();
+                document.querySelectorAll('#feedbackTable tbody tr').forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+                });
+            });
+        }
+
         // Biểu đồ cột: lượt đăng ký theo chiến dịch
         const ctxBar = document.getElementById('chartRegistrations');
         if (ctxBar) {
@@ -164,33 +291,56 @@
                     datasets: [{
                         label: 'Lượt đăng ký',
                         data: @Html.Raw(chartData),
-                        backgroundColor: 'rgba(25, 135, 84, 0.75)',
-                        borderColor: '#198754',
+                        backgroundColor: 'rgba(16, 185, 129, 0.82)',
+                        hoverBackgroundColor: '#059669',
+                        borderColor: '#059669',
                         borderWidth: 1,
-                        borderRadius: 8
+                        borderRadius: 10,
+                        maxBarThickness: 48
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 },
+                            grid: { color: 'rgba(16, 185, 129, 0.08)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
 
-        // Biểu đồ tròn: tỷ lệ cảm xúc
+        // Biểu đồ tròn Doughnut: tỷ lệ cảm xúc
         const ctxPie = document.getElementById('chartSentiment');
         if (ctxPie) {
             new Chart(ctxPie, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: ['Tích cực 🌟', 'Trung tính 🙂', 'Tiêu cực ⚠️'],
                     datasets: [{
                         data: [@positive, @neutral, @warning],
-                        backgroundColor: ['#198754', '#6c757d', '#dc3545']
+                        backgroundColor: ['#10b981', '#94a3b8', '#ef4444'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverOffset: 6
                     }]
                 },
-                options: { responsive: true }
+                options: {
+                    responsive: true,
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 16 }
+                        }
+                    }
+                }
             });
         }
 

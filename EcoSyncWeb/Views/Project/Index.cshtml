@@ -6,45 +6,62 @@
     var keyword = ViewBag.Keyword as string;
     var location = ViewBag.Location as string;
     var status = ViewBag.Status as string ?? "Tất cả";
+    var projectsList = Model?.ToList() ?? new List<EcoSyncWeb.Models.Project>();
 }
 
-<div class="container mt-4 mb-5">
-    <div class="text-center mb-4">
-        <h1 class="fw-bold text-success display-5">🌱 Dự Án & Chiến Dịch Cộng Đồng</h1>
-        <p class="text-muted lead">Cùng nhau chung tay bảo vệ môi trường, lan tỏa lối sống xanh tại Đà Nẵng và toàn quốc.</p>
+<div class="container mt-3 mb-5 animate-fade-up">
+    <!-- Hero Banner -->
+    <div class="eco-page-header mb-4 text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+            <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+                🌍 @projectsList.Count chiến dịch cộng đồng
+            </span>
+            <h1 class="fw-extrabold display-6 mb-2">🌱 Dự Án &amp; Chiến Dịch Cộng Đồng</h1>
+            <p class="mb-0 text-white text-opacity-85">
+                Cùng nhau chung tay bảo vệ môi trường, lan tỏa lối sống xanh tại Đà Nẵng và toàn quốc.
+            </p>
+        </div>
 
         @if (User.Identity != null && User.Identity.IsAuthenticated && userRole == "Admin")
         {
-            <div class="mt-3">
-                <a asp-action="Create" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">➕ Phát Động Chiến Dịch Mới</a>
+            <div class="flex-shrink-0">
+                <a asp-action="Create" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold text-dark shadow">
+                    ➕ Phát Động Chiến Dịch Mới
+                </a>
             </div>
         }
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm text-center border-0" role="alert">
+            <i class="bi bi-check-circle-fill me-1"></i> @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm text-center" role="alert">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm text-center border-0" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     <!-- PB08: Tìm kiếm & lọc chiến dịch -->
-    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+    <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white">
         <form asp-action="Index" method="get" class="row g-2 align-items-center">
             <div class="col-md-5">
-                <input type="text" name="keyword" value="@keyword" class="form-control rounded-pill px-3" placeholder="🔍 Tìm theo tên hoặc mô tả chiến dịch..." />
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3 text-muted">🔍</span>
+                    <input type="text" name="keyword" value="@keyword" class="form-control border-start-0 rounded-end-pill px-3" placeholder="Tìm theo tên hoặc mô tả chiến dịch..." />
+                </div>
             </div>
             <div class="col-md-3">
-                <input type="text" name="location" value="@location" class="form-control rounded-pill px-3" placeholder="📍 Địa điểm (Sơn Trà...)" />
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3 text-muted">📍</span>
+                    <input type="text" name="location" value="@location" class="form-control border-start-0 rounded-end-pill px-3" placeholder="Địa điểm (Sơn Trà, Mỹ Khê...)" />
+                </div>
             </div>
             <div class="col-md-2">
                 <select name="status" class="form-select rounded-pill px-3" asp-for="@status">
@@ -55,74 +72,99 @@
                 </select>
             </div>
             <div class="col-md-2 d-grid">
-                <button type="submit" class="btn btn-success rounded-pill fw-bold">Tìm kiếm</button>
+                <button type="submit" class="btn btn-success rounded-pill fw-bold py-2">
+                    <i class="bi bi-search me-1"></i>Tìm kiếm
+                </button>
             </div>
         </form>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 g-4">
-        @foreach (var project in Model)
+        @foreach (var project in projectsList)
         {
             <div class="col">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 position-relative overflow-hidden bg-white">
-                    <div class="card-body d-flex flex-column">
-                        @if (!string.IsNullOrWhiteSpace(project.ImageUrl))
-                        {
-                            <img src="@project.ImageUrl" alt="Ảnh chiến dịch @project.Title" class="img-fluid mb-3 w-100" style="height: 220px; object-fit: cover; border-radius: 24px !important;" loading="lazy" onerror="this.onerror=null;this.src='/uploads/projects/chiendich@(project.Id).jpg';" />
-                        }
-                        else
-                        {
-                            <div class="d-flex flex-column justify-content-center align-items-center mb-3 bg-light text-muted" style="height: 160px; border-radius: 24px;" aria-label="Chiến dịch chưa có ảnh">
-                                <span style="font-size: 2rem;">🖼️</span>
-                                <span class="small">Chưa có ảnh chiến dịch</span>
-                            </div>
-                        }
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            @if (project.Status == "Đã kết thúc")
+                <div class="card border-0 rounded-4 p-3 p-md-4 h-100 position-relative overflow-hidden bg-white eco-card-hover">
+                    <div class="card-body p-1 d-flex flex-column">
+                        <!-- Ảnh chiến dịch + Badge nổi -->
+                        <div class="eco-img-wrap mb-3">
+                            @if (!string.IsNullOrWhiteSpace(project.ImageUrl))
                             {
-                                <span class="badge bg-secondary px-3 py-2 rounded-pill">Đã kết thúc</span>
-                            }
-                            else if (project.Status == "Đang diễn ra")
-                            {
-                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Đang diễn ra</span>
+                                <img src="@project.ImageUrl" alt="Ảnh chiến dịch @project.Title" class="img-fluid w-100" style="height: 230px; object-fit: cover;" loading="lazy" onerror="this.onerror=null;this.src='/uploads/projects/chiendich@(project.Id).jpg';" />
                             }
                             else
                             {
-                                <span class="badge bg-primary px-3 py-2 rounded-pill">Sắp diễn ra</span>
+                                <div class="d-flex flex-column justify-content-center align-items-center bg-success bg-opacity-10 text-success" style="height: 200px;" aria-label="Chiến dịch chưa có ảnh">
+                                    <span style="font-size: 2.5rem;">🌿</span>
+                                    <span class="small fw-semibold mt-1">Chiến dịch Xanh EcoSync</span>
+                                </div>
                             }
-                            <span class="text-muted small fw-semibold">📅 @project.StartDate.ToString("dd/MM/yyyy")</span>
-                        </div>
 
-                        <h3 class="fw-bold text-dark mb-2">@project.Title</h3>
-                        <p class="text-secondary small mb-2">
-                            📍 @project.Location
-                            @if (project.TargetVolunteers.HasValue)
-                            {
-                                <span> · 👥 Chỉ tiêu @project.TargetVolunteers TNV</span>
-                            }
-                        </p>
-
-                        <p class="text-muted flex-grow-1" style="font-size: 14px; line-height: 1.6;">@project.Description</p>
-
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div>
+                            <!-- Badge trạng thái nổi trên ảnh -->
+                            <div class="eco-status-floating">
                                 @if (project.Status == "Đã kết thúc")
                                 {
-                                    <a asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-success rounded-pill px-4 fw-bold btn-sm shadow-sm">Chi tiết & Đánh giá</a>
+                                    <span class="badge bg-dark bg-opacity-75 text-white px-3 py-2 rounded-pill">⏹ Đã kết thúc</span>
+                                }
+                                else if (project.Status == "Đang diễn ra")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">🔥 Đang diễn ra</span>
                                 }
                                 else
                                 {
-                                    <a asp-action="RegisterForm" asp-route-projectId="@project.Id" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm">Đăng ký tham gia</a>
+                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold">✨ Sắp diễn ra</span>
+                                }
+                            </div>
+
+                            <!-- Ngày diễn ra nổi góc phải dưới ảnh -->
+                            <div class="eco-date-floating">
+                                📅 @project.StartDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold text-dark mb-2">@project.Title</h4>
+
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 fw-medium">
+                                📍 @project.Location
+                            </span>
+                            @if (project.TargetVolunteers.HasValue)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-semibold">
+                                    👥 Chỉ tiêu: @project.TargetVolunteers TNV
+                                </span>
+                            }
+                        </div>
+
+                        <p class="text-muted flex-grow-1 mb-0" style="font-size: 14.5px; line-height: 1.65;">
+                            @project.Description
+                        </p>
+
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex gap-2">
+                                @if (project.Status == "Đã kết thúc")
+                                {
+                                    <a asp-action="Details" asp-route-id="@project.Id" class="btn btn-outline-success rounded-pill px-4 fw-bold btn-sm shadow-sm">
+                                        💬 Chi tiết &amp; Đánh giá
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="RegisterForm" asp-route-projectId="@project.Id" class="btn btn-success rounded-pill px-4 fw-bold btn-sm shadow-sm">
+                                        🙋 Đăng ký tham gia
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@project.Id" class="btn btn-light rounded-pill px-3 fw-semibold btn-sm border text-secondary">
+                                        Chi tiết
+                                    </a>
                                 }
                             </div>
 
                             @if (User.Identity != null && User.Identity.IsAuthenticated && userRole == "Admin")
                             {
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <a asp-action="Volunteers" asp-route-id="@project.Id" class="btn btn-outline-primary rounded-pill px-3 fw-bold btn-sm">📋 Quản lý TNV</a>
-                                    <a asp-action="CertificatesManagement" asp-route-id="@project.Id" class="btn btn-outline-success rounded-pill px-3 fw-bold btn-sm">🏆 Cấp GCN</a>
-                                    <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-outline-warning rounded-pill px-3 fw-bold btn-sm">✏️ Sửa</a>
-                                    <a asp-action="Delete" asp-route-id="@project.Id" class="btn btn-outline-danger rounded-pill px-3 fw-bold btn-sm" onclick="return confirm('Bạn có chắc muốn xóa chiến dịch này không?');">🗑️ Xóa</a>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a asp-action="Volunteers" asp-route-id="@project.Id" class="btn btn-outline-primary rounded-pill px-3 fw-bold btn-sm" title="Quản lý Tình nguyện viên">📋 TNV</a>
+                                    <a asp-action="CertificatesManagement" asp-route-id="@project.Id" class="btn btn-outline-success rounded-pill px-3 fw-bold btn-sm" title="Cấp Giấy chứng nhận">🏆 Cấp GCN</a>
+                                    <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-outline-warning rounded-pill px-3 fw-bold btn-sm" title="Chỉnh sửa">✏️</a>
+                                    <a asp-action="Delete" asp-route-id="@project.Id" class="btn btn-outline-danger rounded-pill px-3 fw-bold btn-sm" title="Xóa" onclick="return confirm('Bạn có chắc muốn xóa chiến dịch này không?');">🗑️</a>
                                 </div>
                             }
                         </div>
@@ -132,10 +174,15 @@
         }
     </div>
 
-    @if (!Model.Any())
+    @if (!projectsList.Any())
     {
-        <div class="text-center py-5 text-muted">
-            Không tìm thấy chiến dịch nào khớp với từ khóa/bộ lọc. <a asp-action="Index" class="text-success fw-bold">Xóa bộ lọc</a>
+        <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white mt-3">
+            <div class="fs-1 mb-2">🔍</div>
+            <h5 class="fw-bold text-dark">Không tìm thấy chiến dịch phù hợp</h5>
+            <p class="text-muted mb-3">Không có chiến dịch nào khớp với từ khóa hoặc bộ lọc hiện tại của bạn.</p>
+            <div>
+                <a asp-action="Index" class="btn btn-success rounded-pill px-4 fw-bold">🔄 Xóa bộ lọc &amp; Xem tất cả</a>
+            </div>
         </div>
     }
 </div>

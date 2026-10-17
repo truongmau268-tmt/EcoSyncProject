@@ -3,11 +3,6 @@ using System.Text.Json;
 
 namespace EcoSyncWeb.Services
 {
-    /// <summary>
-    /// Client gọi Groq qua REST API tương thích OpenAI:
-    /// POST {BaseUrl}/chat/completions (mặc định https://api.groq.com/openai/v1).
-    /// Cấu hình trong appsettings.json hoặc dùng biến môi trường API_KEY/GROQ_API_KEY.
-    /// </summary>
     public class GroqClient : IAiClient
     {
         private readonly HttpClient _http;

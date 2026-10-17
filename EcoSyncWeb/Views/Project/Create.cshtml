@@ -4,58 +4,67 @@
     ViewData["Title"] = "Phát động chiến dịch mới";
 }
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 animate-fade-up">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
-                <h2 class="fw-bold text-success text-center mb-4">➕ Phát Động Chiến Dịch Mới</h2>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                <div class="eco-page-header rounded-0 text-center py-4">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">
+                        🌍 Khởi tạo hoạt động cộng đồng
+                    </span>
+                    <h2 class="fw-extrabold mb-0">➕ Phát Động Chiến Dịch Mới</h2>
+                </div>
 
-                <form asp-action="Create" method="post" enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label fw-bold">Tên chiến dịch:</label>
-                        <input asp-for="Title" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Ra quân dọn rác bán đảo Sơn Trà..." required />
-                        <span asp-validation-for="Title" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết chiến dịch:</label>
-                        <textarea asp-for="Description" class="form-control rounded-4 p-3" rows="4" placeholder="Nhập mục tiêu, số lượng tình nguyện viên cần tuyển..." required></textarea>
-                        <span asp-validation-for="Description" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ImageFile" class="form-label fw-bold">Tải ảnh chiến dịch lên (tùy chọn):</label>
-                        <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" />
-                        <div class="form-text">JPG, PNG, GIF hoặc WEBP; dung lượng tối đa 5 MB.</div>
-                        <span asp-validation-for="ImageFile" class="text-danger small"></span>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="StartTime" class="form-label fw-bold">Thời gian bắt đầu:</label>
-                            <input asp-for="StartTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
-                            <span asp-validation-for="StartTime" class="text-danger small"></span>
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold text-dark small">🌱 Tên chiến dịch</label>
+                            <input asp-for="Title" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Ra quân dọn rác bán đảo Sơn Trà..." required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
-                            <label asp-for="EndTime" class="form-label fw-bold">Thời gian kết thúc:</label>
-                            <input asp-for="EndTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
-                            <span asp-validation-for="EndTime" class="text-danger small"></span>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold text-dark small">📝 Mô tả chi tiết chiến dịch</label>
+                            <textarea asp-for="Description" class="form-control rounded-4 p-3" rows="4" placeholder="Nhập mục tiêu, lịch trình, số lượng tình nguyện viên cần tuyển..." required></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label asp-for="Location" class="form-label fw-bold">Địa điểm tổ chức:</label>
-                        <input asp-for="Location" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Bãi biển Mỹ Khê, Đà Nẵng..." required />
-                        <span asp-validation-for="Location" class="text-danger small"></span>
-                    </div>
+                        <div class="mb-3">
+                            <label asp-for="ImageFile" class="form-label fw-bold text-dark small">🖼️ Tải ảnh bìa chiến dịch lên (tùy chọn)</label>
+                            <input asp-for="ImageFile" type="file" class="form-control rounded-4" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" />
+                            <div class="form-text">Định dạng JPG, PNG, GIF hoặc WEBP; dung lượng tối đa 5 MB.</div>
+                            <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                        </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">⬅ Quay lại</a>
-                        <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">🚀 Tạo Chiến Dịch</button>
-                    </div>
-                </form>
+                        <div class="row mb-3 g-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartTime" class="form-label fw-bold text-dark small">📅 Thời gian bắt đầu</label>
+                                <input asp-for="StartTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndTime" class="form-label fw-bold text-dark small">🏁 Thời gian kết thúc</label>
+                                <input asp-for="EndTime" type="datetime-local" class="form-control rounded-pill px-3 py-2" required />
+                                <span asp-validation-for="EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Location" class="form-label fw-bold text-dark small">📍 Địa điểm tổ chức</label>
+                            <input asp-for="Location" class="form-control rounded-pill px-4 py-2" placeholder="Ví dụ: Bãi biển Mỹ Khê, Đà Nẵng..." required />
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 fw-bold text-secondary">⬅ Quay lại</a>
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                                🚀 Tạo Chiến Dịch
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
